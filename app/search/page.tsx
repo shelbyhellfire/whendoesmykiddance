@@ -341,12 +341,27 @@ export default function SearchPage() {
                       const showDancerIndicator =
                         dancers.filter((d) => d.trim()).length > 1;
 
-                      // Generate gradient classes for multiple dancers
-                      const getHeaderClasses = () => {
+                      // Generate gradient style for multiple dancers
+                      const getHeaderStyle = () => {
                         if (color.isMultiple && color.colors) {
-                          return `bg-gradient-to-r from-${color.colors[0].bg.replace("bg-", "")} ${color.colors.length === 2 ? `to-${color.colors[1].bg.replace("bg-", "")}` : `via-${color.colors[1].bg.replace("bg-", "")} to-${color.colors[color.colors.length - 1].bg.replace("bg-", "")}`}`;
+                          const colors = color.colors.map((c) => {
+                            // Map Tailwind color classes to actual hex colors
+                            const colorMap: Record<string, string> = {
+                              "cyan-600": "#0891b2",
+                              "rose-400": "#fb7185",
+                              "orange-500": "#f97316",
+                              "violet-600": "#7c3aed",
+                              "emerald-600": "#059669",
+                            };
+                            return (
+                              colorMap[c.bg.replace("bg-", "")] || "#6b7280"
+                            );
+                          });
+                          return {
+                            background: `linear-gradient(to right, ${colors.join(", ")})`,
+                          };
                         }
-                        return `${(color as any).bg || ""} ${(color as any).hover || ""}`;
+                        return {};
                       };
 
                       return (
@@ -359,7 +374,8 @@ export default function SearchPage() {
                             onClick={() =>
                               setExpandedIndex(isExpanded ? null : index)
                             }
-                            className={`w-full ${getHeaderClasses()} text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors`}
+                            style={getHeaderStyle()}
+                            className={`w-full ${!color.isMultiple && (color as any).bg ? (color as any).bg : ""} ${!color.isMultiple && (color as any).hover ? (color as any).hover : ""} text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors`}
                           >
                             <div className="flex items-center justify-between w-full md:flex-1">
                               <h3 className="text-base md:text-lg font-bold text-left">
