@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Papa from "papaparse";
 import { useEffect, useState } from "react";
+import { useAwards } from "../hooks/useAwards";
 import { DanceEntry } from "../types/dance";
 
 export default function SearchPage() {
@@ -14,6 +15,7 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeDay, setActiveDay] = useState<string>("All");
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const { findNextAward } = useAwards();
 
   // Color palette for different dancers - more sophisticated tones
   const dancerColors = [
@@ -314,6 +316,11 @@ export default function SearchPage() {
                         entry.dancerName?.split(",").length || 1;
                       const isGroupRoutine = dancerCount > 10;
                       const color = getEntryColor(entry);
+                      const nextAward = findNextAward(
+                        entry.day,
+                        entry.time,
+                        entry.room,
+                      );
 
                       return (
                         <div
@@ -418,6 +425,21 @@ export default function SearchPage() {
                                   </div>
                                 )}
                               </div>
+
+                              {/* Award Time */}
+                              {nextAward && (
+                                <div className="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-lg">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-2xl">🏆</span>
+                                    <span className="text-sm font-bold text-amber-900">
+                                      Awards Ceremony
+                                    </span>
+                                  </div>
+                                  <div className="text-base font-semibold text-amber-800">
+                                    {nextAward.time} in {nextAward.room}
+                                  </div>
+                                </div>
+                              )}
 
                               {/* Dancer Names */}
                               {isGroupRoutine ? (

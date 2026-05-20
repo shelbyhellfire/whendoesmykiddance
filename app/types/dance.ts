@@ -12,3 +12,10 @@ export interface DanceEntry {
   level?: string;
   groupSize?: string;
 }
+
+export interface AwardEntry {
+  room: string;
+  day: string;
+  time: string;
+  description: string;
+}

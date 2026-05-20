@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Papa from "papaparse";
 import { useEffect, useState } from "react";
+import { useAwards } from "../hooks/useAwards";
 import { DanceEntry } from "../types/dance";
 
 type ViewMode = "day" | "room" | "ageGroup";
@@ -12,6 +13,7 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<string | null>(null);
+  const { findNextAward } = useAwards();
 
   // Filters
   const [selectedDay, setSelectedDay] = useState<string>("All");
@@ -205,6 +207,11 @@ export default function SchedulePage() {
                   const isExpanded = expandedIndex === uniqueKey;
                   const dancerCount = entry.dancerName?.split(",").length || 1;
                   const isGroupRoutine = dancerCount > 10;
+                  const nextAward = findNextAward(
+                    entry.day,
+                    entry.time,
+                    entry.room,
+                  );
 
                   return (
                     <div
@@ -333,6 +340,21 @@ export default function SchedulePage() {
                               </div>
                             )}
                           </div>
+
+                          {/* Award Time */}
+                          {nextAward && (
+                            <div className="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-lg">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-2xl">🏆</span>
+                                <span className="text-sm font-bold text-amber-900">
+                                  Awards Ceremony
+                                </span>
+                              </div>
+                              <div className="text-base font-semibold text-amber-800">
+                                {nextAward.time} in {nextAward.room}
+                              </div>
+                            </div>
+                          )}
 
                           {/* Dancer Names */}
                           {isGroupRoutine ? (
