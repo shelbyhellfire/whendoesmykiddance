@@ -116,6 +116,29 @@ export default function SchedulePage() {
     <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-lg shadow-xl p-4 md:p-8 mb-6">
+          {/* Breadcrumb */}
+          <div className="mb-4">
+            <Link
+              href="/"
+              className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Home
+            </Link>
+          </div>
+
           <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2">
             Browse Full Schedule
           </h1>
@@ -380,12 +403,6 @@ export default function SchedulePage() {
             </div>
           </div>
         )}
-
-        <div className="mt-6 text-center">
-          <Link href="/" className="text-white hover:text-purple-200 underline">
-            Back to Home
-          </Link>
-        </div>
       </div>
     </div>
   );

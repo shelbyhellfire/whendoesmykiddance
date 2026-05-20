@@ -17,34 +17,39 @@ export default function SearchPage() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const { findNextAward, awards, isAwardBetween, parseTime } = useAwards();
 
-  // Color palette for different dancers - more sophisticated tones
+  // Color palette for different dancers - with actual hex colors for gradients
   const dancerColors = [
     {
       bg: "bg-cyan-600",
+      bgColor: "#0891b2",
       hover: "hover:bg-cyan-700",
       border: "border-cyan-300",
       light: "bg-cyan-50",
     },
     {
       bg: "bg-rose-400",
+      bgColor: "#fb7185",
       hover: "hover:bg-rose-500",
       border: "border-rose-300",
       light: "bg-rose-50",
     },
     {
       bg: "bg-orange-500",
+      bgColor: "#f97316",
       hover: "hover:bg-orange-600",
       border: "border-orange-300",
       light: "bg-orange-50",
     },
     {
       bg: "bg-violet-600",
+      bgColor: "#7c3aed",
       hover: "hover:bg-violet-700",
       border: "border-violet-300",
       light: "bg-violet-50",
     },
     {
       bg: "bg-emerald-600",
+      bgColor: "#059669",
       hover: "hover:bg-emerald-700",
       border: "border-emerald-300",
       light: "bg-emerald-50",
@@ -118,7 +123,28 @@ export default function SearchPage() {
       return searchNames.some((searchName) => dancerNames.includes(searchName));
     });
 
-    setFilteredResults(results);
+    // Deduplicate routines and merge dancer names
+    const uniqueResults = results.reduce((acc, current) => {
+      const key = `${current.routineNumber}-${current.day}-${current.time}-${current.room}`;
+      const existing = acc.find(
+        (item) =>
+          `${item.routineNumber}-${item.day}-${item.time}-${item.room}` === key,
+      );
+      if (existing) {
+        // Combine dancer names if not already present
+        if (
+          current.dancerName &&
+          !existing.dancerName.includes(current.dancerName)
+        ) {
+          existing.dancerName = `${existing.dancerName}, ${current.dancerName}`;
+        }
+      } else {
+        acc.push({ ...current });
+      }
+      return acc;
+    }, [] as DanceEntry[]);
+
+    setFilteredResults(uniqueResults);
     setHasSearched(true);
   };
 
@@ -153,16 +179,33 @@ export default function SearchPage() {
     return matchingIndices.map((i) => ({ name: dancers[i], index: i }));
   };
 
-  // Determine which color to use for an entry
+  // Determine which color/gradient to use for an entry
   const getEntryColor = (entry: DanceEntry) => {
     const matching = getMatchingDancers(entry);
 
     if (matching.length > 1) {
-      return multipleColor;
+      // Create a gradient using the individual dancer colors
+      const color1 = dancerColors[matching[0].index % dancerColors.length];
+      const color2 = dancerColors[matching[1].index % dancerColors.length];
+
+      return {
+        bg: "",
+        bgColor: `linear-gradient(to right, ${color1.bgColor}, ${color2.bgColor})`,
+        hover: "",
+        border: color1.border,
+        light: color1.light,
+        isGradient: true,
+      };
     } else if (matching.length === 1) {
-      return dancerColors[matching[0].index % dancerColors.length];
+      return {
+        ...dancerColors[matching[0].index % dancerColors.length],
+        isGradient: false,
+      };
     }
-    return dancerColors[0];
+    return {
+      ...dancerColors[0],
+      isGradient: false,
+    };
   };
 
   const handleKeyPress = (e: React.KeyboardEvent, index: number) => {
@@ -175,8 +218,31 @@ export default function SearchPage() {
     <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-xl p-4 md:p-8 mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            When Does My Kid Dance?
+          {/* Breadcrumb */}
+          <div className="mb-4">
+            <Link
+              href="/"
+              className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Home
+            </Link>
+          </div>
+
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2">
+            Search for Dancers
           </h1>
           <p className="text-gray-600 mb-6">
             Search for your dancers' schedules - each dancer will be
@@ -357,7 +423,16 @@ export default function SearchPage() {
                                 onClick={() =>
                                   setExpandedIndex(isExpanded ? null : index)
                                 }
-                                className={`w-full ${color.bg} ${color.hover} text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors`}
+                                className={`w-full text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors ${
+                                  color.isGradient
+                                    ? ""
+                                    : `${color.bg} ${color.hover}`
+                                }`}
+                                style={
+                                  color.isGradient
+                                    ? { background: color.bgColor }
+                                    : {}
+                                }
                               >
                                 <div className="flex items-center justify-between w-full md:flex-1">
                                   <h3 className="text-base md:text-lg font-bold text-left">
@@ -530,12 +605,6 @@ export default function SearchPage() {
             )}
           </div>
         )}
-
-        <div className="mt-6 text-center">
-          <Link href="/" className="text-white hover:text-purple-200 underline">
-            Back to Home
-          </Link>
-        </div>
       </div>
     </div>
   );

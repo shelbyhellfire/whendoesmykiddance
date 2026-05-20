@@ -50,7 +50,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## How Parents Use It
 
 1. Visit the website
-2. Click "Search for a Dancer"
+2. Click "Search for Dancers"
 3. Type in the dancer's name
 4. View all their scheduled performances
 
