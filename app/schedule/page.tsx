@@ -85,15 +85,23 @@ export default function SchedulePage() {
     return matchesDay && matchesRoom && matchesAgeGroup;
   });
 
-  // Remove duplicates based on routine number, day, and time
+  // Remove duplicates and aggregate dancers for team routines
   const uniqueFilteredData = filteredData.reduce((acc, current) => {
     const key = `${current.routineNumber}-${current.day}-${current.time}-${current.room}`;
-    const exists = acc.find(
+    const existing = acc.find(
       (item) =>
         `${item.routineNumber}-${item.day}-${item.time}-${item.room}` === key,
     );
-    if (!exists) {
-      acc.push(current);
+    if (existing) {
+      // Combine dancer names
+      if (
+        current.dancerName &&
+        !existing.dancerName.includes(current.dancerName)
+      ) {
+        existing.dancerName = `${existing.dancerName}, ${current.dancerName}`;
+      }
+    } else {
+      acc.push({ ...current });
     }
     return acc;
   }, [] as DanceEntry[]);
