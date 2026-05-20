@@ -421,14 +421,6 @@ export default function SearchPage() {
                                         {entry.routineNumber}
                                       </div>
                                     </div>
-                                    <div className="text-center">
-                                      <div className="text-xs text-gray-500 mb-1">
-                                        Room
-                                      </div>
-                                      <div className="text-base font-semibold text-gray-900">
-                                        {entry.room}
-                                      </div>
-                                    </div>
                                     {entry.category && (
                                       <div className="text-center">
                                         <div className="text-xs text-gray-500 mb-1">

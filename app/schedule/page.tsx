@@ -293,30 +293,6 @@ export default function SchedulePage() {
                                 {entry.routineNumber}
                               </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-xs text-gray-500 mb-1">
-                                Day
-                              </div>
-                              <div className="text-base font-semibold text-gray-900">
-                                {entry.day}
-                              </div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-xs text-gray-500 mb-1">
-                                Time
-                              </div>
-                              <div className="text-base font-semibold text-gray-900">
-                                {entry.time}
-                              </div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-xs text-gray-500 mb-1">
-                                Room
-                              </div>
-                              <div className="text-base font-semibold text-gray-900">
-                                {entry.room}
-                              </div>
-                            </div>
                             {entry.category && (
                               <div className="text-center">
                                 <div className="text-xs text-gray-500 mb-1">
