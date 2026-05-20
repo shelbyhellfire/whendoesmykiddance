@@ -158,11 +158,23 @@ export default function SearchPage() {
     const matching = getMatchingDancers(entry);
 
     if (matching.length > 1) {
-      return multipleColor;
+      // Return multiple colors for gradient
+      return {
+        isMultiple: true,
+        colors: matching.map(
+          (m) => dancerColors[m.index % dancerColors.length],
+        ),
+      };
     } else if (matching.length === 1) {
-      return dancerColors[matching[0].index % dancerColors.length];
+      return {
+        isMultiple: false,
+        ...dancerColors[matching[0].index % dancerColors.length],
+      };
     }
-    return dancerColors[0];
+    return {
+      isMultiple: false,
+      ...dancerColors[0],
+    };
   };
 
   const handleKeyPress = (e: React.KeyboardEvent, index: number) => {
@@ -329,6 +341,14 @@ export default function SearchPage() {
                       const showDancerIndicator =
                         dancers.filter((d) => d.trim()).length > 1;
 
+                      // Generate gradient classes for multiple dancers
+                      const getHeaderClasses = () => {
+                        if (color.isMultiple && color.colors) {
+                          return `bg-gradient-to-r from-${color.colors[0].bg.replace("bg-", "")} ${color.colors.length === 2 ? `to-${color.colors[1].bg.replace("bg-", "")}` : `via-${color.colors[1].bg.replace("bg-", "")} to-${color.colors[color.colors.length - 1].bg.replace("bg-", "")}`}`;
+                        }
+                        return `${(color as any).bg || ""} ${(color as any).hover || ""}`;
+                      };
+
                       return (
                         <div
                           key={index}
@@ -339,7 +359,7 @@ export default function SearchPage() {
                             onClick={() =>
                               setExpandedIndex(isExpanded ? null : index)
                             }
-                            className={`w-full ${color.bg} ${color.hover} text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors`}
+                            className={`w-full ${getHeaderClasses()} text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors`}
                           >
                             <div className="flex items-center justify-between w-full md:flex-1">
                               <h3 className="text-base md:text-lg font-bold text-left">
