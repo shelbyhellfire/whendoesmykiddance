@@ -384,7 +384,15 @@ export default function SearchPage() {
                 <div className="space-y-3">
                   {displayEntries.length > 0 ? (
                     displayEntries
-                      .sort((a, b) => parseTime(a.time) - parseTime(b.time))
+                      .sort((a, b) => {
+                        // Sort by day first, then by time
+                        const dayIndexA = days.indexOf(a.day);
+                        const dayIndexB = days.indexOf(b.day);
+                        if (dayIndexA !== dayIndexB) {
+                          return dayIndexA - dayIndexB;
+                        }
+                        return parseTime(a.time) - parseTime(b.time);
+                      })
                       .map((entry, index, sortedEntries) => {
                         const isExpanded = expandedIndex === index;
                         const color = getEntryColor(entry);
