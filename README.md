@@ -1,3 +1,75 @@
+ar# When Does My Kid Dance? 💃
+
+A simple web application for dance competition parents to quickly find their child's performance schedule.
+
+## Features
+
+- Search for dancers by name
+- View all performances for a dancer including:
+  - Day
+  - Time
+  - Room/Studio
+  - Routine Number
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js installed on your machine
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+### Adding Your Schedule Data
+
+1. Replace the `public/schedule.csv` file with your competition schedule
+2. Make sure your CSV has the following columns:
+   - `dancerName` (required)
+   - `day` (required)
+     dancerName,day,time,room,routineNumber,routineName
+     Emma Johnson,Saturday,9:30 AM,Studio A,101,Ballet Dreams
+     Emma Johnson,Saturday,2:15 PM,Studio B,145,Jazz Funk
+     Sophia Martinez,Saturday,10:45 AM,Studio A,115,Tap Sensation
+
+````
+
+### Running the App
+
+```bash
+npm run dev
+````
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## How Parents Use It
+
+1. Visit the website
+2. Click "Search for a Dancer"
+3. Type in the dancer's name
+4. View all their scheduled performances
+
+## Deployment
+
+You can easily deploy this app to Vercel:
+
+1. Push your code to GitHub
+
+## Tech Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS
+- PapaParse (CSV parsing)
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -5,8 +77,6 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash
-npm run dev
-# or
 yarn dev
 # or
 pnpm dev

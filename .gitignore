@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local development files
+*.xlsx
+*.xls
+*.pdf
+check-xlsx.js
+extract-xlsx.js
+find-routines.js
+parse-starz.py
+convert-xlsx-to-csv.py
+extract-all-dancers.py
+production-routines.js
+temp-from-xlsx.csv
