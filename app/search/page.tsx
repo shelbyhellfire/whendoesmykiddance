@@ -494,7 +494,8 @@ export default function SearchPage() {
                                 <div className="flex items-center gap-2 px-4 py-2 bg-amber-100 border-2 border-amber-400 rounded-lg">
                                   <span className="text-xl">🏆</span>
                                   <span className="text-sm font-bold text-amber-900">
-                                    Awards at {awardBetween.time}
+                                    Awards at {awardBetween.time} in{" "}
+                                    {awardBetween.room}
                                   </span>
                                 </div>
                                 <div className="flex-1 h-px bg-gray-400"></div>
