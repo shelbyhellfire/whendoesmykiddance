@@ -437,11 +437,23 @@ export default function SearchPage() {
                               {(showDancerIndicator &&
                                 matchingDancers.length > 0) ||
                               nextAward ? (
-                                <div className="mt-4 flex flex-wrap items-center gap-3">
+                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                                  {/* Award Time */}
+                                  {nextAward && (
+                                    <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-2xl">🏆</span>
+                                        <span className="text-base font-semibold text-amber-800">
+                                          {nextAward.time} in {nextAward.room}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
+
                                   {/* Dancer indicator for multi-dancer searches */}
                                   {showDancerIndicator &&
                                     matchingDancers.length > 0 && (
-                                      <div className="flex flex-wrap gap-2">
+                                      <div className="flex flex-wrap gap-2 ml-auto">
                                         {matchingDancers.map((dancer) => (
                                           <div
                                             key={dancer.index}
@@ -457,18 +469,6 @@ export default function SearchPage() {
                                         ))}
                                       </div>
                                     )}
-
-                                  {/* Award Time */}
-                                  {nextAward && (
-                                    <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-2xl">🏆</span>
-                                        <span className="text-base font-semibold text-amber-800">
-                                          {nextAward.time} in {nextAward.room}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  )}
                                 </div>
                               ) : null}
                             </div>
