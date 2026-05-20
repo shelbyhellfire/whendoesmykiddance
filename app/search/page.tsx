@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import Papa from "papaparse";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useAwards } from "../hooks/useAwards";
 import { DanceEntry } from "../types/dance";
 
-export default function SearchPage() {
+function SearchPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [dancers, setDancers] = useState<string[]>([""]);
   const [danceData, setDanceData] = useState<DanceEntry[]>([]);
   const [filteredResults, setFilteredResults] = useState<DanceEntry[]>([]);
@@ -15,6 +18,7 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeDay, setActiveDay] = useState<string>("All");
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
   const { findNextAward, awards, isAwardBetween, parseTime } = useAwards();
 
   // Color palette for different dancers - with actual hex colors for gradients
@@ -79,8 +83,8 @@ export default function SearchPage() {
   const displayEntries =
     activeDay === "All" ? filteredResults : resultsByDay[activeDay] || [];
 
+  // Load CSV data
   useEffect(() => {
-    // Load CSV from public folder
     fetch("/schedule.csv")
       .then((response) => response.text())
       .then((csvText) => {
@@ -107,9 +111,21 @@ export default function SearchPage() {
       });
   }, []);
 
-  const handleSearch = () => {
-    // Get non-empty dancer names
-    const searchNames = dancers
+  // Load dancers from URL parameters on initial load
+  useEffect(() => {
+    const dancerParams = searchParams.getAll("dancer");
+    if (dancerParams.length > 0) {
+      setDancers(dancerParams);
+      // Trigger search once data is loaded
+      if (danceData.length > 0) {
+        performSearch(dancerParams);
+      }
+    }
+  }, [searchParams, danceData]);
+
+  // Perform the actual search logic (extracted for reuse)
+  const performSearch = (searchDancers: string[]) => {
+    const searchNames = searchDancers
       .map((name) => name.trim().toLowerCase())
       .filter((name) => name.length > 0);
 
@@ -117,13 +133,11 @@ export default function SearchPage() {
       return;
     }
 
-    // Filter entries that match any of the search names
     const results = danceData.filter((entry) => {
       const dancerNames = entry.dancerName?.toLowerCase() || "";
       return searchNames.some((searchName) => dancerNames.includes(searchName));
     });
 
-    // Deduplicate routines and merge dancer names
     const uniqueResults = results.reduce((acc, current) => {
       const key = `${current.routineNumber}-${current.day}-${current.time}-${current.room}`;
       const existing = acc.find(
@@ -131,7 +145,6 @@ export default function SearchPage() {
           `${item.routineNumber}-${item.day}-${item.time}-${item.room}` === key,
       );
       if (existing) {
-        // Combine dancer names if not already present
         if (
           current.dancerName &&
           !existing.dancerName.includes(current.dancerName)
@@ -146,6 +159,41 @@ export default function SearchPage() {
 
     setFilteredResults(uniqueResults);
     setHasSearched(true);
+  };
+
+  const handleSearch = () => {
+    // Update URL with dancer parameters
+    const validDancers = dancers.filter((name) => name.trim().length > 0);
+    if (validDancers.length === 0) return;
+
+    // Build URL parameters
+    const params = new URLSearchParams();
+    validDancers.forEach((dancer) => {
+      params.append("dancer", dancer.trim());
+    });
+
+    // Single dancer - go to their individual page
+    if (validDancers.length === 1) {
+      const dancerSlug = validDancers[0]
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+      router.push(`/${dancerSlug}`);
+      return;
+    }
+
+    // Multiple dancers - go to compare page
+    router.push(`/compare?${params.toString()}`);
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
   };
 
   const addDancerField = () => {
@@ -219,7 +267,7 @@ export default function SearchPage() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-xl p-4 md:p-8 mb-6">
           {/* Breadcrumb */}
-          <div className="mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <Link
               href="/"
               className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
@@ -239,14 +287,33 @@ export default function SearchPage() {
               </svg>
               Home
             </Link>
+            <Link
+              href="/schedule"
+              className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
+            >
+              Browse Full Schedule
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
           </div>
 
           <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2">
             Search for Dancers
           </h1>
           <p className="text-gray-600 mb-6">
-            Search for your dancers' schedules - each dancer will be
-            color-coded!
+            View schedules with shareable links. Add multiple dancers to compare
+            schedules side-by-side with color-coding!
           </p>
 
           <div className="space-y-3">
@@ -292,7 +359,7 @@ export default function SearchPage() {
                 onClick={handleSearch}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200 ml-auto"
               >
-                Search All
+                View Schedule
               </button>
             </div>
           </div>
@@ -318,24 +385,76 @@ export default function SearchPage() {
 
         {hasSearched && (
           <div className="bg-white rounded-lg shadow-xl px-2 py-4 md:p-8">
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-3">
+            {/* Header with dancers and copy button */}
+            <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex flex-wrap gap-3 items-center">
                 {dancers
                   .filter((name) => name.trim())
                   .map((name, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
-                    >
-                      <div
-                        className={`w-3 h-3 rounded-full ${dancerColors[index % dancerColors.length].bg}`}
-                      ></div>
-                      <span className="text-sm font-semibold text-gray-700">
-                        {name}
-                      </span>
-                    </div>
+                    <React.Fragment key={index}>
+                      <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full">
+                        <div
+                          className={`w-3 h-3 rounded-full ${dancerColors[index % dancerColors.length].bg}`}
+                        ></div>
+                        <span className="text-sm font-semibold text-gray-700">
+                          {name}
+                        </span>
+                      </div>
+                      <Link
+                        href={`/${name.trim().toLowerCase().replace(/\s+/g, "-")}`}
+                        className="text-xs text-purple-600 hover:text-purple-800 hover:underline font-medium"
+                      >
+                        View Schedule →
+                      </Link>
+                    </React.Fragment>
                   ))}
               </div>
+
+              {/* Copy Link Button */}
+              <button
+                onClick={handleCopyLink}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                  copied
+                    ? "bg-green-500 text-white"
+                    : "bg-purple-600 text-white hover:bg-purple-700"
+                }`}
+              >
+                {copied ? (
+                  <>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Copy Link
+                  </>
+                )}
+              </button>
             </div>
 
             {filteredResults.length === 0 ? (
@@ -431,7 +550,7 @@ export default function SearchPage() {
                                 onClick={() =>
                                   setExpandedIndex(isExpanded ? null : index)
                                 }
-                                className={`w-full text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors ${
+                                className={`w-full text-white px-4 py-3 md:px-6 md:py-4 transition-colors ${
                                   color.isGradient
                                     ? ""
                                     : `${color.bg} ${color.hover}`
@@ -442,53 +561,78 @@ export default function SearchPage() {
                                     : {}
                                 }
                               >
-                                <div className="flex items-center justify-between w-full md:flex-1">
-                                  <h3 className="text-base md:text-lg font-bold text-left">
-                                    {entry.routineName || "Untitled Routine"}
-                                  </h3>
-                                  <svg
-                                    className={`w-5 h-5 md:hidden transition-transform duration-200 ${
-                                      isExpanded ? "rotate-180" : ""
-                                    }`}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M19 9l-7 7-7-7"
-                                    />
-                                  </svg>
-                                </div>
-                                <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
-                                  {activeDay === "All" && (
-                                    <span className="text-xs md:text-sm font-semibold">
-                                      {entry.day}
-                                    </span>
-                                  )}
-                                  <span className="text-xs md:text-sm font-semibold">
-                                    {entry.time}
-                                  </span>
-                                  <span className="text-xs md:text-sm font-semibold">
-                                    {entry.room}
-                                  </span>
-                                  <svg
-                                    className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
-                                      isExpanded ? "rotate-180" : ""
-                                    }`}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M19 9l-7 7-7-7"
-                                    />
-                                  </svg>
+                                <div className="flex flex-col gap-3">
+                                  {/* First row: Title and basic info */}
+                                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
+                                    <div className="flex items-center justify-between w-full md:flex-1">
+                                      <h3 className="text-base md:text-lg font-bold text-left">
+                                        {entry.routineName ||
+                                          "Untitled Routine"}
+                                      </h3>
+                                      <svg
+                                        className={`w-5 h-5 md:hidden transition-transform duration-200 ${
+                                          isExpanded ? "rotate-180" : ""
+                                        }`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M19 9l-7 7-7-7"
+                                        />
+                                      </svg>
+                                    </div>
+                                    <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
+                                      {activeDay === "All" && (
+                                        <span className="text-xs md:text-sm font-semibold">
+                                          {entry.day}
+                                        </span>
+                                      )}
+                                      <span className="text-xs md:text-sm font-semibold">
+                                        {entry.time}
+                                      </span>
+                                      <span className="text-xs md:text-sm font-semibold">
+                                        {entry.room}
+                                      </span>
+                                      <svg
+                                        className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
+                                          isExpanded ? "rotate-180" : ""
+                                        }`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M19 9l-7 7-7-7"
+                                        />
+                                      </svg>
+                                    </div>
+                                  </div>
+                                  {/* Second row: Dancer indicators (only show if searching multiple dancers) */}
+                                  {showDancerIndicator &&
+                                    matchingDancers.length > 0 && (
+                                      <div className="flex flex-wrap gap-2">
+                                        {matchingDancers.map((dancer) => (
+                                          <div
+                                            key={dancer.index}
+                                            className="flex items-center gap-1.5 px-2 py-1 bg-white bg-opacity-25 rounded-full"
+                                          >
+                                            <div
+                                              className={`w-2.5 h-2.5 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
+                                            ></div>
+                                            <span className="text-xs font-semibold">
+                                              {dancer.name}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
                                 </div>
                               </button>
 
@@ -615,5 +759,23 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-lg shadow-xl p-8 text-center">
+              <div className="text-gray-600">Loading...</div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <SearchPageContent />
+    </Suspense>
   );
 }

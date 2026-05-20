@@ -117,7 +117,7 @@ export default function SchedulePage() {
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-lg shadow-xl p-4 md:p-8 mb-6">
           {/* Breadcrumb */}
-          <div className="mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <Link
               href="/"
               className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
@@ -136,6 +136,25 @@ export default function SchedulePage() {
                 />
               </svg>
               Home
+            </Link>
+            <Link
+              href="/search"
+              className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
+            >
+              Search for Dancers
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             </Link>
           </div>
 
