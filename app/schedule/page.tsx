@@ -343,15 +343,12 @@ export default function SchedulePage() {
 
                           {/* Award Time */}
                           {nextAward && (
-                            <div className="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-lg">
-                              <div className="flex items-center gap-2 mb-1">
+                            <div className="mt-4 p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
+                              <div className="flex items-center gap-2">
                                 <span className="text-2xl">🏆</span>
-                                <span className="text-sm font-bold text-amber-900">
-                                  Awards Ceremony
+                                <span className="text-base font-semibold text-amber-800">
+                                  {nextAward.time} in {nextAward.room}
                                 </span>
-                              </div>
-                              <div className="text-base font-semibold text-amber-800">
-                                {nextAward.time} in {nextAward.room}
                               </div>
                             </div>
                           )}

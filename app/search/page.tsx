@@ -44,10 +44,10 @@ export default function SearchPage() {
       light: "bg-violet-50",
     },
     {
-      bg: "bg-indigo-600",
-      hover: "hover:bg-indigo-700",
-      border: "border-indigo-300",
-      light: "bg-indigo-50",
+      bg: "bg-emerald-600",
+      hover: "hover:bg-emerald-700",
+      border: "border-emerald-300",
+      light: "bg-emerald-50",
     },
   ];
 
@@ -139,8 +139,8 @@ export default function SearchPage() {
     setDancers(newDancers);
   };
 
-  // Determine which color to use for an entry
-  const getEntryColor = (entry: DanceEntry) => {
+  // Get which searched dancers are in a routine
+  const getMatchingDancers = (entry: DanceEntry) => {
     const searchNames = dancers
       .map((name) => name.trim().toLowerCase())
       .filter((name) => name.length > 0);
@@ -150,10 +150,17 @@ export default function SearchPage() {
       .map((name, index) => (dancerNames.includes(name) ? index : -1))
       .filter((index) => index !== -1);
 
-    if (matchingIndices.length > 1) {
+    return matchingIndices.map((i) => ({ name: dancers[i], index: i }));
+  };
+
+  // Determine which color to use for an entry
+  const getEntryColor = (entry: DanceEntry) => {
+    const matching = getMatchingDancers(entry);
+
+    if (matching.length > 1) {
       return multipleColor;
-    } else if (matchingIndices.length === 1) {
-      return dancerColors[matchingIndices[0] % dancerColors.length];
+    } else if (matching.length === 1) {
+      return dancerColors[matching[0].index % dancerColors.length];
     }
     return dancerColors[0];
   };
@@ -312,15 +319,15 @@ export default function SearchPage() {
                   {displayEntries.length > 0 ? (
                     displayEntries.map((entry, index) => {
                       const isExpanded = expandedIndex === index;
-                      const dancerCount =
-                        entry.dancerName?.split(",").length || 1;
-                      const isGroupRoutine = dancerCount > 10;
                       const color = getEntryColor(entry);
                       const nextAward = findNextAward(
                         entry.day,
                         entry.time,
                         entry.room,
                       );
+                      const matchingDancers = getMatchingDancers(entry);
+                      const showDancerIndicator =
+                        dancers.filter((d) => d.trim()).length > 1;
 
                       return (
                         <div
@@ -334,12 +341,23 @@ export default function SearchPage() {
                             }
                             className={`w-full ${color.bg} ${color.hover} text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors`}
                           >
-                            <div className="flex items-center justify-between w-full md:flex-1">
+                            <div className="flex items-center justify-between w-full md:flex-1 gap-2">
                               <h3 className="text-base md:text-lg font-bold text-left">
                                 {entry.routineName || "Untitled Routine"}
                               </h3>
+                              {showDancerIndicator && (
+                                <div className="flex gap-1 flex-shrink-0">
+                                  {matchingDancers.map((dancer) => (
+                                    <div
+                                      key={dancer.index}
+                                      className={`w-2 h-2 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
+                                      title={dancer.name}
+                                    ></div>
+                                  ))}
+                                </div>
+                              )}
                               <svg
-                                className={`w-5 h-5 md:hidden transition-transform duration-200 ${
+                                className={`w-5 h-5 md:hidden transition-transform duration-200 flex-shrink-0 ${
                                   isExpanded ? "rotate-180" : ""
                                 }`}
                                 fill="none"
@@ -428,47 +446,13 @@ export default function SearchPage() {
 
                               {/* Award Time */}
                               {nextAward && (
-                                <div className="mt-4 p-4 bg-amber-50 border-2 border-amber-300 rounded-lg">
-                                  <div className="flex items-center gap-2 mb-1">
+                                <div className="mt-4 p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
+                                  <div className="flex items-center gap-2">
                                     <span className="text-2xl">🏆</span>
-                                    <span className="text-sm font-bold text-amber-900">
-                                      Awards Ceremony
+                                    <span className="text-base font-semibold text-amber-800">
+                                      {nextAward.time} in {nextAward.room}
                                     </span>
                                   </div>
-                                  <div className="text-base font-semibold text-amber-800">
-                                    {nextAward.time} in {nextAward.room}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Dancer Names */}
-                              {isGroupRoutine ? (
-                                <div className="mt-4 pt-4 border-t border-gray-200">
-                                  <div className="text-xs text-gray-500 mb-2">
-                                    Dancers in this routine:
-                                  </div>
-                                  <div className="text-sm text-gray-700 max-h-32 overflow-y-auto bg-gray-50 p-3 rounded">
-                                    {entry.dancerName
-                                      ?.split(",")
-                                      .map((dancer, i) => (
-                                        <span
-                                          key={i}
-                                          className="inline-block mr-2 mb-1"
-                                        >
-                                          {dancer.trim()}
-                                          {i < dancerCount - 1 && ","}
-                                        </span>
-                                      ))}
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="mt-4 pt-4 border-t border-gray-200 text-center">
-                                  <span className="text-xs text-gray-500">
-                                    Dancer:{" "}
-                                  </span>
-                                  <span className="text-sm font-semibold text-gray-900">
-                                    {entry.dancerName}
-                                  </span>
                                 </div>
                               )}
                             </div>
