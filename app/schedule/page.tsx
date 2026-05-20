@@ -206,7 +206,7 @@ export default function SchedulePage() {
                   const uniqueKey = `${entry.routineNumber}-${entry.day}-${entry.time}`;
                   const isExpanded = expandedIndex === uniqueKey;
                   const dancerCount = entry.dancerName?.split(",").length || 1;
-                  const isGroupRoutine = dancerCount > 10;
+                  const isGroupRoutine = dancerCount > 1; // Show all dancers if 2 or more
                   const nextAward = findNextAward(
                     entry.day,
                     entry.time,
