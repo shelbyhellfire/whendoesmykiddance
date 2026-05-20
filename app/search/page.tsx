@@ -441,16 +441,23 @@ export default function SearchPage() {
                                         </div>
                                       </div>
                                     )}
-                                    {entry.level && (
-                                      <div className="text-center">
-                                        <div className="text-xs text-gray-500 mb-1">
-                                          Level
-                                        </div>
-                                        <div className="text-base font-semibold text-gray-900">
-                                          {entry.level}
-                                        </div>
-                                      </div>
-                                    )}
+                                    {entry.ageGroup &&
+                                      (() => {
+                                        const level =
+                                          entry.ageGroup.split(" ")[0];
+                                        return level === "S" ||
+                                          level === "RS" ||
+                                          level === "NS" ? (
+                                          <div className="text-center">
+                                            <div className="text-xs text-gray-500 mb-1">
+                                              Level
+                                            </div>
+                                            <div className="text-base font-semibold text-gray-900">
+                                              {level}
+                                            </div>
+                                          </div>
+                                        ) : null;
+                                      })()}
                                   </div>
 
                                   {/* Combined Dancer Indicator and Award Time */}
