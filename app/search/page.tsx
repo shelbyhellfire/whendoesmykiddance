@@ -342,6 +342,13 @@ export default function SearchPage() {
                             )
                           : null;
 
+                        // Check if this is the last dance and there's an award after it
+                        const isLastDance =
+                          !nextEntry ||
+                          nextEntry.day !== entry.day ||
+                          nextEntry.room !== entry.room;
+                        const awardAfterLast = isLastDance ? nextAward : null;
+
                         return (
                           <React.Fragment key={index}>
                             <div className="border-2 border-gray-300 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200">
@@ -496,6 +503,21 @@ export default function SearchPage() {
                                   <span className="text-sm font-bold text-amber-900">
                                     Awards at {awardBetween.time} in{" "}
                                     {awardBetween.room}
+                                  </span>
+                                </div>
+                                <div className="flex-1 h-px bg-gray-400"></div>
+                              </div>
+                            )}
+
+                            {/* Award after last dance */}
+                            {awardAfterLast && !awardBetween && (
+                              <div className="flex items-center gap-3 py-3">
+                                <div className="flex-1 h-px bg-gray-400"></div>
+                                <div className="flex items-center gap-2 px-4 py-2 bg-amber-100 border-2 border-amber-400 rounded-lg">
+                                  <span className="text-xl">🏆</span>
+                                  <span className="text-sm font-bold text-amber-900">
+                                    Awards at {awardAfterLast.time} in{" "}
+                                    {awardAfterLast.room}
                                   </span>
                                 </div>
                                 <div className="flex-1 h-px bg-gray-400"></div>
