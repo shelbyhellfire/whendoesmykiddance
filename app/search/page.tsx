@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Papa from "papaparse";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAwards } from "../hooks/useAwards";
 import { DanceEntry } from "../types/dance";
 
@@ -15,7 +15,7 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeDay, setActiveDay] = useState<string>("All");
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const { findNextAward } = useAwards();
+  const { findNextAward, awards, isAwardBetween, parseTime } = useAwards();
 
   // Color palette for different dancers - more sophisticated tones
   const dancerColors = [
@@ -317,165 +317,192 @@ export default function SearchPage() {
                 {/* Active Day Content */}
                 <div className="space-y-3">
                   {displayEntries.length > 0 ? (
-                    displayEntries.map((entry, index) => {
-                      const isExpanded = expandedIndex === index;
-                      const color = getEntryColor(entry);
-                      const nextAward = findNextAward(
-                        entry.day,
-                        entry.time,
-                        entry.room,
-                      );
-                      const matchingDancers = getMatchingDancers(entry);
-                      const showDancerIndicator =
-                        dancers.filter((d) => d.trim()).length > 1;
+                    displayEntries
+                      .sort((a, b) => parseTime(a.time) - parseTime(b.time))
+                      .map((entry, index, sortedEntries) => {
+                        const isExpanded = expandedIndex === index;
+                        const color = getEntryColor(entry);
+                        const nextAward = findNextAward(
+                          entry.day,
+                          entry.time,
+                          entry.room,
+                        );
+                        const matchingDancers = getMatchingDancers(entry);
+                        const showDancerIndicator =
+                          dancers.filter((d) => d.trim()).length > 1;
 
-                      return (
-                        <div
-                          key={index}
-                          className="border-2 border-gray-300 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200"
-                        >
-                          {/* Accordion Header - Always Visible */}
-                          <button
-                            onClick={() =>
-                              setExpandedIndex(isExpanded ? null : index)
-                            }
-                            className={`w-full ${color.bg} ${color.hover} text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors`}
-                          >
-                            <div className="flex items-center justify-between w-full md:flex-1">
-                              <h3 className="text-base md:text-lg font-bold text-left">
-                                {entry.routineName || "Untitled Routine"}
-                              </h3>
-                              <svg
-                                className={`w-5 h-5 md:hidden transition-transform duration-200 ${
-                                  isExpanded ? "rotate-180" : ""
-                                }`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M19 9l-7 7-7-7"
-                                />
-                              </svg>
-                            </div>
-                            <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
-                              {activeDay === "All" && (
-                                <span className="text-xs md:text-sm font-semibold">
-                                  {entry.day}
-                                </span>
-                              )}
-                              <span className="text-xs md:text-sm font-semibold">
-                                {entry.time}
-                              </span>
-                              <span className="text-xs md:text-sm font-semibold">
-                                {entry.room}
-                              </span>
-                              <svg
-                                className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
-                                  isExpanded ? "rotate-180" : ""
-                                }`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M19 9l-7 7-7-7"
-                                />
-                              </svg>
-                            </div>
-                          </button>
+                        // Check if there's an award between this dance and the next
+                        const nextEntry = sortedEntries[index + 1];
+                        const awardBetween = nextEntry
+                          ? isAwardBetween(
+                              entry.day,
+                              entry.room,
+                              entry.time,
+                              nextEntry.time,
+                            )
+                          : null;
 
-                          {/* Accordion Content - Collapsed by Default */}
-                          {isExpanded && (
-                            <div className="p-6 bg-white">
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                                <div className="text-center">
-                                  <div className="text-xs text-gray-500 mb-1">
-                                    Routine #
-                                  </div>
-                                  <div className="text-base font-semibold text-gray-900">
-                                    {entry.routineNumber}
-                                  </div>
+                        return (
+                          <React.Fragment key={index}>
+                            <div className="border-2 border-gray-300 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200">
+                              {/* Accordion Header - Always Visible */}
+                              <button
+                                onClick={() =>
+                                  setExpandedIndex(isExpanded ? null : index)
+                                }
+                                className={`w-full ${color.bg} ${color.hover} text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors`}
+                              >
+                                <div className="flex items-center justify-between w-full md:flex-1">
+                                  <h3 className="text-base md:text-lg font-bold text-left">
+                                    {entry.routineName || "Untitled Routine"}
+                                  </h3>
+                                  <svg
+                                    className={`w-5 h-5 md:hidden transition-transform duration-200 ${
+                                      isExpanded ? "rotate-180" : ""
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 9l-7 7-7-7"
+                                    />
+                                  </svg>
                                 </div>
-                                <div className="text-center">
-                                  <div className="text-xs text-gray-500 mb-1">
-                                    Room
-                                  </div>
-                                  <div className="text-base font-semibold text-gray-900">
+                                <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
+                                  {activeDay === "All" && (
+                                    <span className="text-xs md:text-sm font-semibold">
+                                      {entry.day}
+                                    </span>
+                                  )}
+                                  <span className="text-xs md:text-sm font-semibold">
+                                    {entry.time}
+                                  </span>
+                                  <span className="text-xs md:text-sm font-semibold">
                                     {entry.room}
-                                  </div>
+                                  </span>
+                                  <svg
+                                    className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
+                                      isExpanded ? "rotate-180" : ""
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 9l-7 7-7-7"
+                                    />
+                                  </svg>
                                 </div>
-                                {entry.category && (
-                                  <div className="text-center">
-                                    <div className="text-xs text-gray-500 mb-1">
-                                      Category
-                                    </div>
-                                    <div className="text-base font-semibold text-gray-900">
-                                      {entry.category}
-                                    </div>
-                                  </div>
-                                )}
-                                {entry.ageGroup && (
-                                  <div className="text-center">
-                                    <div className="text-xs text-gray-500 mb-1">
-                                      Age Group
-                                    </div>
-                                    <div className="text-base font-semibold text-gray-900">
-                                      {entry.ageGroup}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                              </button>
 
-                              {/* Combined Dancer Indicator and Award Time */}
-                              {(showDancerIndicator &&
-                                matchingDancers.length > 0) ||
-                              nextAward ? (
-                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                                  {/* Award Time */}
-                                  {nextAward && (
-                                    <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-2xl">🏆</span>
-                                        <span className="text-base font-semibold text-amber-800">
-                                          {nextAward.time} in {nextAward.room}
-                                        </span>
+                              {/* Accordion Content - Collapsed by Default */}
+                              {isExpanded && (
+                                <div className="p-6 bg-white">
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                    <div className="text-center">
+                                      <div className="text-xs text-gray-500 mb-1">
+                                        Routine #
+                                      </div>
+                                      <div className="text-base font-semibold text-gray-900">
+                                        {entry.routineNumber}
                                       </div>
                                     </div>
-                                  )}
-
-                                  {/* Dancer indicator for multi-dancer searches */}
-                                  {showDancerIndicator &&
-                                    matchingDancers.length > 0 && (
-                                      <div className="flex flex-wrap gap-2 ml-auto">
-                                        {matchingDancers.map((dancer) => (
-                                          <div
-                                            key={dancer.index}
-                                            className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
-                                          >
-                                            <div
-                                              className={`w-3 h-3 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
-                                            ></div>
-                                            <span className="text-sm font-semibold text-gray-700">
-                                              {dancer.name}
-                                            </span>
-                                          </div>
-                                        ))}
+                                    <div className="text-center">
+                                      <div className="text-xs text-gray-500 mb-1">
+                                        Room
+                                      </div>
+                                      <div className="text-base font-semibold text-gray-900">
+                                        {entry.room}
+                                      </div>
+                                    </div>
+                                    {entry.category && (
+                                      <div className="text-center">
+                                        <div className="text-xs text-gray-500 mb-1">
+                                          Category
+                                        </div>
+                                        <div className="text-base font-semibold text-gray-900">
+                                          {entry.category}
+                                        </div>
                                       </div>
                                     )}
+                                    {entry.ageGroup && (
+                                      <div className="text-center">
+                                        <div className="text-xs text-gray-500 mb-1">
+                                          Age Group
+                                        </div>
+                                        <div className="text-base font-semibold text-gray-900">
+                                          {entry.ageGroup}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Combined Dancer Indicator and Award Time */}
+                                  {(showDancerIndicator &&
+                                    matchingDancers.length > 0) ||
+                                  nextAward ? (
+                                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                                      {/* Award Time */}
+                                      {nextAward && (
+                                        <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-2xl">🏆</span>
+                                            <span className="text-base font-semibold text-amber-800">
+                                              {nextAward.time} in{" "}
+                                              {nextAward.room}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Dancer indicator for multi-dancer searches */}
+                                      {showDancerIndicator &&
+                                        matchingDancers.length > 0 && (
+                                          <div className="flex flex-wrap gap-2 ml-auto">
+                                            {matchingDancers.map((dancer) => (
+                                              <div
+                                                key={dancer.index}
+                                                className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
+                                              >
+                                                <div
+                                                  className={`w-3 h-3 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
+                                                ></div>
+                                                <span className="text-sm font-semibold text-gray-700">
+                                                  {dancer.name}
+                                                </span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+                                    </div>
+                                  ) : null}
                                 </div>
-                              ) : null}
+                              )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })
+
+                            {/* Award Separator */}
+                            {awardBetween && (
+                              <div className="flex items-center gap-3 py-3">
+                                <div className="flex-1 h-px bg-gray-400"></div>
+                                <div className="flex items-center gap-2 px-4 py-2 bg-amber-100 border-2 border-amber-400 rounded-lg">
+                                  <span className="text-xl">🏆</span>
+                                  <span className="text-sm font-bold text-amber-900">
+                                    Awards at {awardBetween.time}
+                                  </span>
+                                </div>
+                                <div className="flex-1 h-px bg-gray-400"></div>
+                              </div>
+                            )}
+                          </React.Fragment>
+                        );
+                      })
                   ) : (
                     <p className="text-gray-600">
                       {activeDay === "All"
