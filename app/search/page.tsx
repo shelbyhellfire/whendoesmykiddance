@@ -341,23 +341,12 @@ export default function SearchPage() {
                             }
                             className={`w-full ${color.bg} ${color.hover} text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors`}
                           >
-                            <div className="flex items-center justify-between w-full md:flex-1 gap-2">
+                            <div className="flex items-center justify-between w-full md:flex-1">
                               <h3 className="text-base md:text-lg font-bold text-left">
                                 {entry.routineName || "Untitled Routine"}
                               </h3>
-                              {showDancerIndicator && (
-                                <div className="flex gap-1 flex-shrink-0">
-                                  {matchingDancers.map((dancer) => (
-                                    <div
-                                      key={dancer.index}
-                                      className={`w-2 h-2 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
-                                      title={dancer.name}
-                                    ></div>
-                                  ))}
-                                </div>
-                              )}
                               <svg
-                                className={`w-5 h-5 md:hidden transition-transform duration-200 flex-shrink-0 ${
+                                className={`w-5 h-5 md:hidden transition-transform duration-200 ${
                                   isExpanded ? "rotate-180" : ""
                                 }`}
                                 fill="none"
@@ -444,17 +433,44 @@ export default function SearchPage() {
                                 )}
                               </div>
 
-                              {/* Award Time */}
-                              {nextAward && (
-                                <div className="mt-4 p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-2xl">🏆</span>
-                                    <span className="text-base font-semibold text-amber-800">
-                                      {nextAward.time} in {nextAward.room}
-                                    </span>
-                                  </div>
+                              {/* Combined Dancer Indicator and Award Time */}
+                              {(showDancerIndicator &&
+                                matchingDancers.length > 0) ||
+                              nextAward ? (
+                                <div className="mt-4 flex flex-wrap items-center gap-3">
+                                  {/* Dancer indicator for multi-dancer searches */}
+                                  {showDancerIndicator &&
+                                    matchingDancers.length > 0 && (
+                                      <div className="flex flex-wrap gap-2">
+                                        {matchingDancers.map((dancer) => (
+                                          <div
+                                            key={dancer.index}
+                                            className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
+                                          >
+                                            <div
+                                              className={`w-3 h-3 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
+                                            ></div>
+                                            <span className="text-sm font-semibold text-gray-700">
+                                              {dancer.name}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+
+                                  {/* Award Time */}
+                                  {nextAward && (
+                                    <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-2xl">🏆</span>
+                                        <span className="text-base font-semibold text-amber-800">
+                                          {nextAward.time} in {nextAward.room}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                              ) : null}
                             </div>
                           )}
                         </div>
