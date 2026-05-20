@@ -32,10 +32,10 @@ export default function SearchPage() {
       light: "bg-rose-50",
     },
     {
-      bg: "bg-teal-600",
-      hover: "hover:bg-teal-700",
-      border: "border-teal-300",
-      light: "bg-teal-50",
+      bg: "bg-orange-500",
+      hover: "hover:bg-orange-600",
+      border: "border-orange-300",
+      light: "bg-orange-50",
     },
     {
       bg: "bg-violet-600",
@@ -44,10 +44,10 @@ export default function SearchPage() {
       light: "bg-violet-50",
     },
     {
-      bg: "bg-emerald-600",
-      hover: "hover:bg-emerald-700",
-      border: "border-emerald-300",
-      light: "bg-emerald-50",
+      bg: "bg-indigo-600",
+      hover: "hover:bg-indigo-700",
+      border: "border-indigo-300",
+      light: "bg-indigo-50",
     },
   ];
 
