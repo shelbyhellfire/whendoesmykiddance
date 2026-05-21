@@ -416,56 +416,56 @@ export default function SchedulePage() {
 
                           {/* Accordion Content */}
                           {isExpanded && (
-                            <div className="p-6 bg-white">
-                              <div className="flex flex-wrap gap-4 items-center">
+                            <div className="p-4 md:p-6 bg-white">
+                              <div className="flex flex-nowrap gap-2 md:gap-4 items-center overflow-x-auto">
                                 {entry.category && (
-                                  <div className="text-center">
-                                    <div className="text-xs text-gray-500 mb-1">
+                                  <div className="text-center flex-shrink-0">
+                                    <div className="text-[10px] md:text-xs text-gray-500 mb-1">
                                       Category
                                     </div>
-                                    <div className="text-base font-semibold text-gray-900">
+                                    <div className="text-xs md:text-base font-semibold text-gray-900">
                                       {entry.category}
                                     </div>
                                   </div>
                                 )}
                                 {entry.ageGroup && (
-                                  <div className="text-center">
-                                    <div className="text-xs text-gray-500 mb-1">
+                                  <div className="text-center flex-shrink-0">
+                                    <div className="text-[10px] md:text-xs text-gray-500 mb-1">
                                       Age Group
                                     </div>
-                                    <div className="text-base font-semibold text-gray-900">
+                                    <div className="text-xs md:text-base font-semibold text-gray-900">
                                       {entry.ageGroup}
                                     </div>
                                   </div>
                                 )}
                                 {entry.level && (
-                                  <div className="text-center">
-                                    <div className="text-xs text-gray-500 mb-1">
+                                  <div className="text-center flex-shrink-0">
+                                    <div className="text-[10px] md:text-xs text-gray-500 mb-1">
                                       Level
                                     </div>
-                                    <div className="text-base font-semibold text-gray-900">
+                                    <div className="text-xs md:text-base font-semibold text-gray-900">
                                       {entry.level}
                                     </div>
                                   </div>
                                 )}
                                 {entry.studio && (
-                                  <div className="text-center">
-                                    <div className="text-xs text-gray-500 mb-1">
+                                  <div className="text-center flex-shrink-0">
+                                    <div className="text-[10px] md:text-xs text-gray-500 mb-1">
                                       Studio
                                     </div>
-                                    <div className="text-base font-semibold text-gray-900">
+                                    <div className="text-xs md:text-base font-semibold text-gray-900">
                                       {entry.studio}
                                     </div>
                                   </div>
                                 )}
                                 {nextAward && (
-                                  <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border-2 border-amber-300 rounded-lg ml-auto">
+                                  <div className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 bg-amber-50 border border-amber-300 md:border-2 rounded-lg ml-auto flex-shrink-0">
                                     <div>
-                                      <div className="text-xs text-amber-700">
+                                      <div className="text-[10px] md:text-xs text-amber-700">
                                         Awards
                                       </div>
-                                      <div className="text-sm font-bold text-amber-900">
-                                        {nextAward.time} in {nextAward.room}
+                                      <div className="text-xs md:text-sm font-bold text-amber-900 whitespace-nowrap">
+                                        {nextAward.time}
                                       </div>
                                     </div>
                                   </div>

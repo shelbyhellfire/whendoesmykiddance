@@ -514,9 +514,9 @@ function ComparePageContent() {
 
                         {isExpanded && (
                           <div className="p-4 md:p-6 bg-white">
-                            <div className="flex flex-wrap gap-2 md:gap-4 items-center justify-between md:justify-start">
+                            <div className="flex flex-nowrap gap-2 md:gap-4 items-center overflow-x-auto">
                               {entry.category && (
-                                <div className="text-center">
+                                <div className="text-center flex-shrink-0">
                                   <div className="text-[10px] md:text-xs text-gray-500 mb-1">
                                     Category
                                   </div>
@@ -526,7 +526,7 @@ function ComparePageContent() {
                                 </div>
                               )}
                               {entry.ageGroup && (
-                                <div className="text-center">
+                                <div className="text-center flex-shrink-0">
                                   <div className="text-[10px] md:text-xs text-gray-500 mb-1">
                                     Age Group
                                   </div>
@@ -536,7 +536,7 @@ function ComparePageContent() {
                                 </div>
                               )}
                               {entry.level && (
-                                <div className="text-center">
+                                <div className="text-center flex-shrink-0">
                                   <div className="text-[10px] md:text-xs text-gray-500 mb-1">
                                     Level
                                   </div>
@@ -546,22 +546,13 @@ function ComparePageContent() {
                                 </div>
                               )}
                               {nextAward && (
-                                <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 bg-amber-50 border border-amber-300 md:border-2 rounded-lg md:ml-auto">
+                                <div className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 bg-amber-50 border border-amber-300 md:border-2 rounded-lg ml-auto flex-shrink-0">
                                   <div>
                                     <div className="text-[10px] md:text-xs text-amber-700">
                                       Awards
                                     </div>
-                                    <div className="text-xs md:text-sm font-bold text-amber-900">
-                                      <span className="block md:inline">
-                                        {nextAward.time}
-                                      </span>
-                                      <span className="hidden md:inline">
-                                        {" "}
-                                        in{" "}
-                                      </span>
-                                      <span className="block md:inline">
-                                        {nextAward.room}
-                                      </span>
+                                    <div className="text-xs md:text-sm font-bold text-amber-900 whitespace-nowrap">
+                                      {nextAward.time}
                                     </div>
                                   </div>
                                 </div>
