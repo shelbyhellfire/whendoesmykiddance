@@ -180,39 +180,48 @@ export default function SchedulePage() {
           </a>
 
           {/* Compact Filter Dropdowns */}
-          <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="mb-4 flex flex-nowrap items-center gap-2 overflow-x-auto">
             <select
               value={selectedDay}
               onChange={(e) => setSelectedDay(e.target.value)}
-              className="px-3 py-1.5 bg-purple-100 border border-purple-300 rounded-lg text-sm font-bold text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 w-auto max-w-[140px]"
+              className="px-3 py-1.5 bg-purple-100 border border-purple-300 rounded-lg text-sm font-bold text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 w-auto max-w-[140px] flex-shrink-0"
             >
-              {days.map((day) => (
-                <option key={day} value={day}>
-                  {day}
-                </option>
-              ))}
+              <option value="All">Day</option>
+              {days
+                .filter((d) => d !== "All")
+                .map((day) => (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                ))}
             </select>
             <select
               value={selectedRoom}
               onChange={(e) => setSelectedRoom(e.target.value)}
-              className="px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-lg text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 w-auto max-w-[140px]"
+              className="px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-lg text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 w-auto max-w-[140px] flex-shrink-0"
             >
-              {rooms.map((room) => (
-                <option key={room} value={room}>
-                  {room}
-                </option>
-              ))}
+              <option value="All">Room</option>
+              {rooms
+                .filter((r) => r !== "All")
+                .map((room) => (
+                  <option key={room} value={room}>
+                    {room}
+                  </option>
+                ))}
             </select>
             <select
               value={selectedAgeGroup}
               onChange={(e) => setSelectedAgeGroup(e.target.value)}
-              className="px-3 py-1.5 bg-green-100 border border-green-300 rounded-lg text-sm font-bold text-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 w-auto max-w-[140px]"
+              className="px-3 py-1.5 bg-green-100 border border-green-300 rounded-lg text-sm font-bold text-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 w-auto max-w-[140px] flex-shrink-0"
             >
-              {ageGroups.map((age) => (
-                <option key={age} value={age}>
-                  {age}
-                </option>
-              ))}
+              <option value="All">Age</option>
+              {ageGroups
+                .filter((a) => a !== "All")
+                .map((age) => (
+                  <option key={age} value={age}>
+                    {age}
+                  </option>
+                ))}
             </select>
             {(selectedDay !== "All" ||
               selectedRoom !== "All" ||
