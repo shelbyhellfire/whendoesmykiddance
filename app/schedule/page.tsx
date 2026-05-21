@@ -17,6 +17,25 @@ export default function SchedulePage() {
   const [filtersExpanded, setFiltersExpanded] = useState<boolean>(false);
   const { findNextAward, isAwardBetween, parseTime } = useAwards();
 
+  // Color palette for different dancers
+  const dancerColors = [
+    { bg: "bg-cyan-600" },
+    { bg: "bg-purple-600" },
+    { bg: "bg-pink-600" },
+    { bg: "bg-orange-600" },
+    { bg: "bg-emerald-600" },
+    { bg: "bg-blue-600" },
+    { bg: "bg-rose-600" },
+    { bg: "bg-amber-600" },
+    { bg: "bg-lime-600" },
+    { bg: "bg-indigo-600" },
+  ];
+
+  // Helper function to get color for a dancer by their index in the routine
+  const getColorForDancerIndex = (index: number) => {
+    return dancerColors[index % dancerColors.length].bg;
+  };
+
   // Filters
   const [selectedDay, setSelectedDay] = useState<string>("All");
   const [selectedRoom, setSelectedRoom] = useState<string>("All");
@@ -404,9 +423,22 @@ export default function SchedulePage() {
                     .map((entry, index, sortedEntries) => {
                       const uniqueKey = `${entry.routineNumber}-${entry.day}-${entry.time}`;
                       const isExpanded = expandedIndex === uniqueKey;
-                      const dancerCount =
-                        entry.dancerName?.split(",").length || 1;
+                      const dancers = entry.dancerName
+                        ? entry.dancerName.split(",").map((d) => d.trim())
+                        : [];
+                      const dancerCount = dancers.length;
                       const isGroupRoutine = dancerCount > 1; // Show all dancers if 2 or more
+
+                      // Debug log
+                      if (index < 3) {
+                        console.log(`Routine ${entry.routineNumber}:`, {
+                          dancerName: entry.dancerName,
+                          dancers,
+                          dancerCount,
+                          isGroupRoutine,
+                          isExpanded,
+                        });
+                      }
                       const nextAward = findNextAward(
                         entry.day,
                         entry.time,
@@ -437,9 +469,10 @@ export default function SchedulePage() {
                               onClick={() =>
                                 setExpandedIndex(isExpanded ? null : uniqueKey)
                               }
-                              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors"
+                              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-3 md:px-6 md:py-4 flex flex-col gap-2 transition-colors"
                             >
-                              <div className="flex items-center justify-between w-full md:flex-1">
+                              {/* Top row: Routine info and expand arrow */}
+                              <div className="flex items-center justify-between w-full">
                                 <h3 className="text-base md:text-lg font-bold text-left">
                                   <span className="opacity-75 mr-2">
                                     #{entry.routineNumber}
@@ -447,7 +480,7 @@ export default function SchedulePage() {
                                   {entry.routineName || "Untitled Routine"}
                                 </h3>
                                 <svg
-                                  className={`w-5 h-5 md:hidden transition-transform duration-200 ${
+                                  className={`w-5 h-5 transition-transform duration-200 flex-shrink-0 ${
                                     isExpanded ? "rotate-180" : ""
                                   }`}
                                   fill="none"
@@ -462,7 +495,9 @@ export default function SchedulePage() {
                                   />
                                 </svg>
                               </div>
-                              <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
+
+                              {/* Bottom row: Day, time, room */}
+                              <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full">
                                 <span className="text-xs md:text-sm font-semibold">
                                   {entry.day}
                                 </span>
@@ -472,21 +507,6 @@ export default function SchedulePage() {
                                 <span className="text-xs md:text-sm font-semibold">
                                   {entry.room}
                                 </span>
-                                <svg
-                                  className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
-                                    isExpanded ? "rotate-180" : ""
-                                  }`}
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 9l-7 7-7-7"
-                                  />
-                                </svg>
                               </div>
                             </button>
 
@@ -555,27 +575,23 @@ export default function SchedulePage() {
                                       Dancers in this routine:
                                     </div>
                                     <div className="text-sm text-gray-700 max-h-32 overflow-y-auto bg-gray-50 p-3 rounded">
-                                      {entry.dancerName
-                                        ?.split(",")
-                                        .map((dancer, i) => (
-                                          <span
-                                            key={i}
-                                            className="inline-block mr-2 mb-1"
-                                          >
-                                            {dancer.trim()}
-                                            {i < dancerCount - 1 && ","}
-                                          </span>
-                                        ))}
+                                      {dancers.map((dancer, i) => (
+                                        <div key={i} className="mb-1">
+                                          {dancer}
+                                        </div>
+                                      ))}
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="mt-4 pt-4 border-t border-gray-200 text-center">
-                                    <span className="text-xs text-gray-500">
-                                      Dancer:{" "}
-                                    </span>
-                                    <span className="text-sm font-semibold text-gray-900">
-                                      {entry.dancerName}
-                                    </span>
+                                  <div className="mt-4 pt-4 border-t border-gray-200">
+                                    <div className="flex items-center justify-center gap-2">
+                                      <span className="text-xs text-gray-500">
+                                        Dancer:{" "}
+                                      </span>
+                                      <span className="text-sm font-semibold text-gray-900">
+                                        {dancers[0]}
+                                      </span>
+                                    </div>
                                   </div>
                                 )}
                               </div>

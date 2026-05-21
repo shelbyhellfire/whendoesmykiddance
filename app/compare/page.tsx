@@ -450,18 +450,6 @@ function ComparePageContent() {
                               </span>
                               {entry.routineName || "Untitled Routine"}
                             </h3>
-                            {/* Show dancer badges in header when multiple searched dancers */}
-                            {matchingDancers.length > 1 && (
-                              <div className="hidden md:flex items-center gap-1">
-                                {matchingDancers.map((dancer) => (
-                                  <div
-                                    key={dancer.index}
-                                    className={`w-3 h-3 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
-                                    title={dancer.name}
-                                  ></div>
-                                ))}
-                              </div>
-                            )}
                             <svg
                               className={`w-5 h-5 md:hidden transition-transform duration-200 ${
                                 isExpanded ? "rotate-180" : ""
@@ -555,7 +543,26 @@ function ComparePageContent() {
                               )}
                             </div>
 
-                            {/* Dancer indicator for multi-dancer searches - removed from here, now shown above tabs */}
+                            {/* Dancer Names */}
+                            {matchingDancers.length > 0 && (
+                              <div className="mt-2 pt-2 border-t border-gray-200">
+                                <div className="flex flex-wrap gap-1.5">
+                                  {matchingDancers.map((dancer) => (
+                                    <div
+                                      key={dancer.index}
+                                      className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 rounded-full"
+                                    >
+                                      <div
+                                        className={`w-2 h-2 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
+                                      ></div>
+                                      <span className="text-xs font-semibold text-gray-700">
+                                        {dancer.name}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
