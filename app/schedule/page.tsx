@@ -166,27 +166,16 @@ export default function SchedulePage() {
             Filter dances by day, room, and age group
           </p>
 
-          {/* Live Stream Link */}
-          <a
-            href="https://starzdancecomp.com/TopShot/livestream/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors shadow-md"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            Watch Live Stream
-          </a>
-
           {/* Compact Filter Dropdowns */}
-          <div className="mb-4 flex flex-nowrap items-center gap-2 overflow-x-auto">
+          <div className="mb-2 flex flex-nowrap items-center gap-2 overflow-x-auto">
             <select
               value={selectedDay}
               onChange={(e) => setSelectedDay(e.target.value)}
-              className="px-3 py-1.5 bg-purple-100 border border-purple-300 rounded-lg text-sm font-bold text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 w-auto max-w-[140px] flex-shrink-0"
+              className="px-3 py-1.5 bg-purple-100 border border-purple-300 rounded-lg text-sm font-bold text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 w-[100px] flex-shrink-0"
             >
-              <option value="All">Day</option>
+              <option value="All">
+                {selectedDay === "All" ? "Day" : "All"}
+              </option>
               {days
                 .filter((d) => d !== "All")
                 .map((day) => (
@@ -198,9 +187,11 @@ export default function SchedulePage() {
             <select
               value={selectedRoom}
               onChange={(e) => setSelectedRoom(e.target.value)}
-              className="px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-lg text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 w-auto max-w-[140px] flex-shrink-0"
+              className="px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-lg text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 w-[100px] flex-shrink-0"
             >
-              <option value="All">Room</option>
+              <option value="All">
+                {selectedRoom === "All" ? "Room" : "All"}
+              </option>
               {rooms
                 .filter((r) => r !== "All")
                 .map((room) => (
@@ -212,9 +203,11 @@ export default function SchedulePage() {
             <select
               value={selectedAgeGroup}
               onChange={(e) => setSelectedAgeGroup(e.target.value)}
-              className="px-3 py-1.5 bg-green-100 border border-green-300 rounded-lg text-sm font-bold text-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 w-auto max-w-[140px] flex-shrink-0"
+              className="px-3 py-1.5 bg-green-100 border border-green-300 rounded-lg text-sm font-bold text-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 w-[100px] flex-shrink-0"
             >
-              <option value="All">Age</option>
+              <option value="All">
+                {selectedAgeGroup === "All" ? "Age" : "All"}
+              </option>
               {ageGroups
                 .filter((a) => a !== "All")
                 .map((age) => (
@@ -223,17 +216,17 @@ export default function SchedulePage() {
                   </option>
                 ))}
             </select>
-            {(selectedDay !== "All" ||
-              selectedRoom !== "All" ||
-              selectedAgeGroup !== "All") && (
-              <button
-                onClick={handleClearFilters}
-                className="text-sm text-purple-600 hover:text-purple-700 hover:underline font-medium"
-              >
-                Clear filters
-              </button>
-            )}
           </div>
+          {(selectedDay !== "All" ||
+            selectedRoom !== "All" ||
+            selectedAgeGroup !== "All") && (
+            <button
+              onClick={handleClearFilters}
+              className="text-sm text-purple-600 hover:text-purple-700 hover:underline font-medium mb-4"
+            >
+              Clear filters
+            </button>
+          )}
 
           {!loading && !error && (
             <p className="text-gray-600 mb-4">
