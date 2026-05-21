@@ -19,6 +19,7 @@ function SearchPageContent() {
   const [activeDay, setActiveDay] = useState<string>("All");
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [uniqueDancerNames, setUniqueDancerNames] = useState<string[]>([]);
   const { findNextAward, awards, isAwardBetween, parseTime } = useAwards();
 
   // Color palette for different dancers - with actual hex colors for gradients
@@ -95,6 +96,26 @@ function SearchPageContent() {
             const entries = results.data as DanceEntry[];
             console.log("Loaded entries:", entries.length);
             setDanceData(entries);
+
+            // Extract unique dancer names
+            const dancerNamesSet = new Set<string>();
+            entries.forEach((entry) => {
+              if (entry.dancerName) {
+                // Split by comma for team routines
+                const names = entry.dancerName.split(",");
+                names.forEach((name) => {
+                  const trimmedName = name.trim();
+                  if (trimmedName) {
+                    dancerNamesSet.add(trimmedName);
+                  }
+                });
+              }
+            });
+
+            // Convert to sorted array
+            const sortedNames = Array.from(dancerNamesSet).sort();
+            setUniqueDancerNames(sortedNames);
+
             setLoading(false);
           },
           error: (err: unknown) => {
@@ -327,6 +348,7 @@ function SearchPageContent() {
                   value={dancer}
                   onChange={(e) => updateDancer(index, e.target.value)}
                   onKeyPress={(e) => handleKeyPress(e, index)}
+                  list={`dancer-list-${index}`}
                   placeholder={
                     dancers.length === 1
                       ? "Enter dancer's name..."
@@ -334,6 +356,11 @@ function SearchPageContent() {
                   }
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
                 />
+                <datalist id={`dancer-list-${index}`}>
+                  {uniqueDancerNames.map((name) => (
+                    <option key={name} value={name} />
+                  ))}
+                </datalist>
                 {dancers.length > 1 && (
                   <button
                     onClick={() => removeDancerField(index)}
