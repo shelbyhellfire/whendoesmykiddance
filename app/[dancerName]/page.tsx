@@ -222,76 +222,72 @@ export default function DancerSchedulePage({ params }: PageProps) {
             </Link>
           </div>
 
-          <h1 className="text-xl md:text-3xl font-bold text-gray-800">
+          <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-3">
             {dancerName}'s Schedule
           </h1>
-          <button
-            onClick={handleCopyLink}
-            className={`flex items-center gap-1 px-2 py-1 mt-3 md:mt-0 md:absolute md:top-4 md:right-8 rounded text-xs font-medium transition-all whitespace-nowrap ${
-              copied
-                ? "bg-green-500 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
-            }`}
-          >
-            {copied ? (
-              <>
-                <svg
-                  className="w-3 h-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Copied
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-3 h-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
-                Copy Link
-              </>
-            )}
-          </button>
 
-          {/* Live Stream Link */}
-          <a
-            href="https://starzdancecomp.com/TopShot/livestream/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3 py-2 mt-3 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            Watch Live Stream
-          </a>
+          {/* Buttons Row - Copy Link on mobile, positioned differently on desktop */}
+          <div className="flex items-center gap-2">
+            <a
+              href="https://starzdancecomp.com/TopShot/livestream/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Watch Live Stream
+            </a>
+            <button
+              onClick={handleCopyLink}
+              className={`flex items-center gap-1 px-2 py-2 md:absolute md:top-4 md:right-8 rounded text-xs font-medium transition-all whitespace-nowrap ${
+                copied
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+              }`}
+            >
+              {copied ? (
+                <>
+                  <svg
+                    className="w-3 h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Copied
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-3 h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Copy Link
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Schedule */}
         <div className="bg-white rounded-lg shadow-xl px-2 py-4 md:p-8">
-          {/* Dance Count */}
-          <p className="text-gray-600 mb-4 px-2">
-            {filteredResults.length} dance
-            {filteredResults.length !== 1 ? "s" : ""}
-          </p>
-
           {/* Day Tabs */}
           <div className="flex border-b border-gray-300 mb-6 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
             <button
