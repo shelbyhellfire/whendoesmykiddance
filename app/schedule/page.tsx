@@ -594,13 +594,8 @@ export default function SchedulePage() {
                         <span className="text-3xl">🏆</span>
                         <div className="flex-1">
                           <h3 className="text-base md:text-lg font-bold text-gray-800 mb-2">
-                            Grand National {gn.level && `- ${gn.level}`}
+                            {gn.description}
                           </h3>
-                          {gn.type && (
-                            <div className="text-sm md:text-base font-semibold text-amber-700 mb-2">
-                              {gn.type}
-                            </div>
-                          )}
                           <div className="flex flex-wrap items-center gap-3 text-sm md:text-base">
                             <span className="font-semibold text-gray-700">
                               Sunday
