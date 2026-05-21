@@ -230,10 +230,10 @@ function ComparePageContent() {
       <div className="max-w-4xl mx-auto">
         {/* Header Card */}
         <div className="bg-white rounded-lg shadow-xl p-4 md:p-8 mb-6">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between gap-2">
             <Link
               href="/search"
-              className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1"
+              className="text-xs md:text-sm text-cyan-600 hover:text-cyan-800 hover:underline flex items-center gap-1"
             >
               <svg
                 className="w-4 h-4"
@@ -252,7 +252,7 @@ function ComparePageContent() {
             </Link>
             <Link
               href="/schedule"
-              className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1"
+              className="text-xs md:text-sm text-cyan-600 hover:text-cyan-800 hover:underline flex items-center gap-1"
             >
               Browse Full Schedule
               <svg
@@ -271,83 +271,82 @@ function ComparePageContent() {
             </Link>
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-3">
-                {dancers.length === 2
-                  ? `${dancers[0]} & ${dancers[1]}'s Schedule`
-                  : dancers.length > 2
-                    ? `${dancers.slice(0, -1).join(", ")} & ${dancers[dancers.length - 1]}'s Schedule`
-                    : "Combined Schedule"}
-              </h1>
+          <div>
+            <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-3">
+              {dancers.length === 2
+                ? `${dancers[0]} & ${dancers[1]}'s Schedule`
+                : dancers.length > 2
+                  ? `${dancers.slice(0, -1).join(", ")} & ${dancers[dancers.length - 1]}'s Schedule`
+                  : "Combined Schedule"}
+            </h1>
 
-              {/* Dancer badges */}
-              <div className="flex flex-wrap gap-2 mb-2">
-                {dancers.map((name, index) => (
+            {/* Dancer badges */}
+            <div className="flex flex-wrap gap-2 mb-2">
+              {dancers.map((name, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
+                >
                   <div
-                    key={index}
-                    className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
-                  >
-                    <div
-                      className={`w-3 h-3 rounded-full ${dancerColors[index % dancerColors.length].bg}`}
-                    ></div>
-                    <span className="text-sm font-semibold text-gray-700">
-                      {name}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                    className={`w-3 h-3 rounded-full ${dancerColors[index % dancerColors.length].bg}`}
+                  ></div>
+                  <span className="text-sm font-semibold text-gray-700">
+                    {name}
+                  </span>
+                </div>
+              ))}
+            </div>
 
+            <div className="flex items-center justify-between">
               <p className="text-gray-600">
                 {filteredResults.length} dance
                 {filteredResults.length !== 1 ? "s" : ""}
               </p>
+              <button
+                onClick={handleCopyLink}
+                className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all whitespace-nowrap ${
+                  copied
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+                }`}
+              >
+                {copied ? (
+                  <>
+                    <svg
+                      className="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Copy Link
+                  </>
+                )}
+              </button>
             </div>
-
-            <button
-              onClick={handleCopyLink}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all whitespace-nowrap shrink-0 ${
-                copied
-                  ? "bg-green-500 text-white"
-                  : "bg-purple-600 text-white hover:bg-purple-700"
-              }`}
-            >
-              {copied ? (
-                <>
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                  Copy Link
-                </>
-              )}
-            </button>
           </div>
         </div>
 
@@ -359,7 +358,7 @@ function ComparePageContent() {
               onClick={() => setActiveDay("All")}
               className={`px-3 md:px-6 py-3 text-sm md:text-base font-semibold transition-all whitespace-nowrap ${
                 activeDay === "All"
-                  ? "bg-indigo-600 text-white rounded-t-lg border-b-2 border-indigo-600 -mb-[1px]"
+                  ? "bg-purple-600 text-white rounded-t-lg border-b-2 border-purple-600 -mb-[1px]"
                   : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
               }`}
             >
@@ -374,7 +373,7 @@ function ComparePageContent() {
                   onClick={() => setActiveDay(day)}
                   className={`px-3 md:px-6 py-3 text-sm md:text-base font-semibold transition-all whitespace-nowrap ${
                     activeDay === day
-                      ? "bg-indigo-600 text-white rounded-t-lg border-b-2 border-indigo-600 -mb-[1px]"
+                      ? "bg-purple-600 text-white rounded-t-lg border-b-2 border-purple-600 -mb-[1px]"
                       : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
                   }`}
                 >
@@ -504,37 +503,48 @@ function ComparePageContent() {
                         </button>
 
                         {isExpanded && (
-                          <div className="p-6 bg-white">
-                            <div className="flex flex-wrap gap-4">
+                          <div className="p-4 md:p-6 bg-white">
+                            <div className="flex flex-wrap gap-2 md:gap-4 items-center justify-between md:justify-start">
                               {entry.category && (
                                 <div className="text-center">
-                                  <div className="text-xs text-gray-500 mb-1">
+                                  <div className="text-[10px] md:text-xs text-gray-500 mb-1">
                                     Category
                                   </div>
-                                  <div className="text-base font-semibold text-gray-900">
+                                  <div className="text-xs md:text-base font-semibold text-gray-900">
                                     {entry.category}
                                   </div>
                                 </div>
                               )}
                               {entry.ageGroup && (
                                 <div className="text-center">
-                                  <div className="text-xs text-gray-500 mb-1">
+                                  <div className="text-[10px] md:text-xs text-gray-500 mb-1">
                                     Age Group
                                   </div>
-                                  <div className="text-base font-semibold text-gray-900">
+                                  <div className="text-xs md:text-base font-semibold text-gray-900">
                                     {entry.ageGroup}
                                   </div>
                                 </div>
                               )}
                               {nextAward && (
-                                <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border-2 border-amber-300 rounded-lg ml-auto">
-                                  <span className="text-2xl">🏆</span>
+                                <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 bg-amber-50 border border-amber-300 md:border-2 rounded-lg md:ml-auto">
+                                  <span className="text-lg md:text-2xl">
+                                    🏆
+                                  </span>
                                   <div>
-                                    <div className="text-xs text-amber-700">
+                                    <div className="text-[10px] md:text-xs text-amber-700">
                                       Awards
                                     </div>
-                                    <div className="text-sm font-bold text-amber-900">
-                                      {nextAward.time} in {nextAward.room}
+                                    <div className="text-xs md:text-sm font-bold text-amber-900">
+                                      <span className="block md:inline">
+                                        {nextAward.time}
+                                      </span>
+                                      <span className="hidden md:inline">
+                                        {" "}
+                                        in{" "}
+                                      </span>
+                                      <span className="block md:inline">
+                                        {nextAward.room}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
