@@ -119,8 +119,8 @@ export default function SchedulePage() {
                   console.log("Format 1 - fullText:", fullText);
 
                   const parts = fullText.split(/\s+/);
-                  room = parts[0];
-                  day = parts[1];
+                  room = parts[0].trim();
+                  day = parts[1].trim();
                   const timeMatch = fullText.match(/\d{1,2}:\d{2}\s*[AP]M/);
                   time = timeMatch ? timeMatch[0] : "";
                   const descMatch = fullText.match(/--(.+?)--/);
@@ -129,9 +129,9 @@ export default function SchedulePage() {
                     : "Grand National";
                 } else {
                   // Format 2: Data spread across columns
-                  room = row[0] || "";
-                  day = row[4] || ""; // Day is in column 5 (index 4)
-                  time = row[8] || ""; // Time is in column 9 (index 8)
+                  room = (row[0] || "").trim();
+                  day = (row[4] || "").trim(); // Day is in column 5 (index 4)
+                  time = (row[8] || "").trim(); // Time is in column 9 (index 8)
 
                   // Find which column has the description
                   for (let i = 0; i < row.length; i++) {
@@ -232,8 +232,15 @@ export default function SchedulePage() {
       (selectedDay === "Wednesday" && gn.day === "Wed") ||
       (selectedDay === "Tuesday" && gn.day === "Tue");
     const matchesRoom = selectedRoom === "All" || gn.room === selectedRoom;
+    console.log(
+      `Filtering GN: room='${gn.room}' day='${gn.day}' | selectedRoom='${selectedRoom}' selectedDay='${selectedDay}' | matchesRoom=${matchesRoom} matchesDay=${matchesDay}`,
+    );
     return matchesDay && matchesRoom;
   });
+
+  console.log(
+    `Total GN: ${grandNationals.length}, Filtered GN: ${filteredGrandNationals.length}, Regular dances: ${uniqueFilteredData.length}`,
+  );
 
   const handleClearFilters = () => {
     setSelectedDay("All");
