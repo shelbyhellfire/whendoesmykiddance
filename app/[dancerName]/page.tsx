@@ -287,7 +287,7 @@ export default function DancerSchedulePage({ params }: PageProps) {
               onClick={() => setActiveDay("All")}
               className={`px-3 md:px-6 py-3 text-sm md:text-base font-semibold transition-all whitespace-nowrap ${
                 activeDay === "All"
-                  ? "bg-cyan-600 text-white rounded-t-lg border-b-2 border-cyan-600 -mb-[1px]"
+                  ? "bg-purple-600 text-white rounded-t-lg border-b-2 border-purple-600 -mb-[1px]"
                   : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
               }`}
             >
@@ -302,7 +302,7 @@ export default function DancerSchedulePage({ params }: PageProps) {
                   onClick={() => setActiveDay(day)}
                   className={`px-3 md:px-6 py-3 text-sm md:text-base font-semibold transition-all whitespace-nowrap ${
                     activeDay === day
-                      ? "bg-cyan-600 text-white rounded-t-lg border-b-2 border-cyan-600 -mb-[1px]"
+                      ? "bg-purple-600 text-white rounded-t-lg border-b-2 border-purple-600 -mb-[1px]"
                       : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
                   }`}
                 >
