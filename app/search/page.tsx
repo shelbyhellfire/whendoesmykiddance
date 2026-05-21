@@ -20,6 +20,8 @@ function SearchPageContent() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [uniqueDancerNames, setUniqueDancerNames] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState<number | null>(null);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const { findNextAward, awards, isAwardBetween, parseTime } = useAwards();
 
   // Color palette for different dancers - with actual hex colors for gradients
@@ -232,6 +234,26 @@ function SearchPageContent() {
     const newDancers = [...dancers];
     newDancers[index] = value;
     setDancers(newDancers);
+
+    // Filter suggestions based on input
+    if (value.trim().length > 0) {
+      const filtered = uniqueDancerNames.filter((name) =>
+        name.toLowerCase().includes(value.toLowerCase()),
+      );
+      setFilteredSuggestions(filtered);
+      setShowSuggestions(index);
+    } else {
+      setShowSuggestions(null);
+      setFilteredSuggestions([]);
+    }
+  };
+
+  const selectSuggestion = (index: number, name: string) => {
+    const newDancers = [...dancers];
+    newDancers[index] = name;
+    setDancers(newDancers);
+    setShowSuggestions(null);
+    setFilteredSuggestions([]);
   };
 
   // Get which searched dancers are in a routine
@@ -339,28 +361,53 @@ function SearchPageContent() {
 
           <div className="space-y-3">
             {dancers.map((dancer, index) => (
-              <div key={index} className="flex gap-2 items-center">
+              <div key={index} className="flex gap-2 items-center relative">
                 <div
                   className={`w-4 h-4 rounded-full ${dancerColors[index % dancerColors.length].bg} flex-shrink-0`}
                 ></div>
-                <input
-                  type="text"
-                  value={dancer}
-                  onChange={(e) => updateDancer(index, e.target.value)}
-                  onKeyPress={(e) => handleKeyPress(e, index)}
-                  list={`dancer-list-${index}`}
-                  placeholder={
-                    dancers.length === 1
-                      ? "Enter dancer's name..."
-                      : `Dancer ${index + 1}'s name...`
-                  }
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
-                />
-                <datalist id={`dancer-list-${index}`}>
-                  {uniqueDancerNames.map((name) => (
-                    <option key={name} value={name} />
-                  ))}
-                </datalist>
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={dancer}
+                    onChange={(e) => updateDancer(index, e.target.value)}
+                    onKeyPress={(e) => handleKeyPress(e, index)}
+                    onFocus={() => {
+                      if (dancer.trim().length > 0) {
+                        const filtered = uniqueDancerNames.filter((name) =>
+                          name.toLowerCase().includes(dancer.toLowerCase()),
+                        );
+                        setFilteredSuggestions(filtered);
+                        setShowSuggestions(index);
+                      }
+                    }}
+                    onBlur={() => {
+                      // Delay to allow click on suggestion
+                      setTimeout(() => setShowSuggestions(null), 200);
+                    }}
+                    placeholder={
+                      dancers.length === 1
+                        ? "Enter dancer's name..."
+                        : `Dancer ${index + 1}'s name...`
+                    }
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
+                  />
+                  {/* Custom Autocomplete Dropdown */}
+                  {showSuggestions === index &&
+                    filteredSuggestions.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {filteredSuggestions.slice(0, 10).map((name) => (
+                          <button
+                            key={name}
+                            type="button"
+                            onClick={() => selectSuggestion(index, name)}
+                            className="w-full text-left px-4 py-2 hover:bg-purple-100 transition-colors text-gray-800"
+                          >
+                            {name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                </div>
                 {dancers.length > 1 && (
                   <button
                     onClick={() => removeDancerField(index)}
