@@ -179,117 +179,52 @@ export default function SchedulePage() {
             Watch Live Stream
           </a>
 
-          {/* Mobile Filter Toggle Button */}
-          <button
-            onClick={() => setFiltersExpanded(!filtersExpanded)}
-            className="md:hidden w-full mb-4 flex items-center justify-between px-4 py-3 bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium rounded-lg transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                />
-              </svg>
-              Filters
-              {(selectedDay !== "All" ||
-                selectedRoom !== "All" ||
-                selectedAgeGroup !== "All") && (
-                <span className="bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full">
-                  Active
-                </span>
-              )}
-            </span>
-            <svg
-              className={`w-5 h-5 transition-transform duration-200 ${
-                filtersExpanded ? "rotate-180" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {/* Compact Filter Dropdowns */}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <select
+              value={selectedDay}
+              onChange={(e) => setSelectedDay(e.target.value)}
+              className="px-3 py-1.5 bg-purple-100 border border-purple-300 rounded-lg text-sm font-bold text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 w-auto max-w-[140px]"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
-          {/* Filters */}
-          <div
-            className={`${
-              filtersExpanded ? "block" : "hidden"
-            } md:block grid grid-cols-1 md:grid-cols-3 gap-4 mb-4`}
-          >
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Day
-              </label>
-              <select
-                value={selectedDay}
-                onChange={(e) => setSelectedDay(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
+              {days.map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedRoom}
+              onChange={(e) => setSelectedRoom(e.target.value)}
+              className="px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-lg text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 w-auto max-w-[140px]"
+            >
+              {rooms.map((room) => (
+                <option key={room} value={room}>
+                  {room}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedAgeGroup}
+              onChange={(e) => setSelectedAgeGroup(e.target.value)}
+              className="px-3 py-1.5 bg-green-100 border border-green-300 rounded-lg text-sm font-bold text-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 w-auto max-w-[140px]"
+            >
+              {ageGroups.map((age) => (
+                <option key={age} value={age}>
+                  {age}
+                </option>
+              ))}
+            </select>
+            {(selectedDay !== "All" ||
+              selectedRoom !== "All" ||
+              selectedAgeGroup !== "All") && (
+              <button
+                onClick={handleClearFilters}
+                className="text-sm text-purple-600 hover:text-purple-700 hover:underline font-medium"
               >
-                {days.map((day) => (
-                  <option key={day} value={day}>
-                    {day}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Room
-              </label>
-              <select
-                value={selectedRoom}
-                onChange={(e) => setSelectedRoom(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
-              >
-                {rooms.map((room) => (
-                  <option key={room} value={room}>
-                    {room}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Age Group
-              </label>
-              <select
-                value={selectedAgeGroup}
-                onChange={(e) => setSelectedAgeGroup(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
-              >
-                {ageGroups.map((age) => (
-                  <option key={age} value={age}>
-                    {age}
-                  </option>
-                ))}
-              </select>
-            </div>
+                Clear filters
+              </button>
+            )}
           </div>
-
-          {(selectedDay !== "All" ||
-            selectedRoom !== "All" ||
-            selectedAgeGroup !== "All") && (
-            <button
-              onClick={handleClearFilters}
-              className="text-purple-600 hover:text-purple-700 hover:underline font-medium mb-4"
-            >
-              Clear all filters
-            </button>
-          )}
 
           {!loading && !error && (
             <p className="text-gray-600 mb-4">
@@ -313,44 +248,6 @@ export default function SchedulePage() {
 
         {!loading && !error && (
           <div className="bg-white rounded-lg shadow-xl p-4 md:p-6">
-            {/* Filter Headers - Show selected filters */}
-            {(selectedDay !== "All" ||
-              selectedRoom !== "All" ||
-              selectedAgeGroup !== "All") && (
-              <div className="mb-4 flex flex-wrap gap-2">
-                {selectedDay !== "All" && (
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 border border-purple-300 rounded-lg">
-                    <span className="text-xs font-medium text-purple-700">
-                      Day:
-                    </span>
-                    <span className="text-sm font-bold text-purple-900">
-                      {selectedDay}
-                    </span>
-                  </div>
-                )}
-                {selectedRoom !== "All" && (
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-lg">
-                    <span className="text-xs font-medium text-blue-700">
-                      Room:
-                    </span>
-                    <span className="text-sm font-bold text-blue-900">
-                      {selectedRoom}
-                    </span>
-                  </div>
-                )}
-                {selectedAgeGroup !== "All" && (
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 border border-green-300 rounded-lg">
-                    <span className="text-xs font-medium text-green-700">
-                      Age Group:
-                    </span>
-                    <span className="text-sm font-bold text-green-900">
-                      {selectedAgeGroup}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-
             <div className="space-y-3">
               {uniqueFilteredData.length > 0 ? (
                 uniqueFilteredData
