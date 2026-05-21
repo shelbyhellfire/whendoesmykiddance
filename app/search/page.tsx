@@ -350,14 +350,14 @@ function SearchPageContent() {
               {dancers.length < 5 && (
                 <button
                   onClick={addDancerField}
-                  className="text-purple-600 hover:text-purple-700 hover:underline font-medium px-2 py-2 transition duration-200"
+                  className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 font-medium text-xs md:text-base py-2 px-4 md:py-3 md:px-6 rounded-lg transition duration-200 whitespace-nowrap"
                 >
                   + Add Another Dancer
                 </button>
               )}
               <button
                 onClick={handleSearch}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200 ml-auto"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm md:text-base py-2 px-4 md:py-3 md:px-8 rounded-lg transition duration-200 ml-auto whitespace-nowrap"
               >
                 View Schedule
               </button>
@@ -550,7 +550,7 @@ function SearchPageContent() {
                                 onClick={() =>
                                   setExpandedIndex(isExpanded ? null : index)
                                 }
-                                className={`w-full text-white px-4 py-3 md:px-6 md:py-4 transition-colors ${
+                                className={`w-full text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors ${
                                   color.isGradient
                                     ? ""
                                     : `${color.bg} ${color.hover}`
@@ -561,93 +561,76 @@ function SearchPageContent() {
                                     : {}
                                 }
                               >
-                                <div className="flex flex-col gap-3">
-                                  {/* First row: Title and basic info */}
-                                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
-                                    <div className="flex items-center justify-between w-full md:flex-1">
-                                      <h3 className="text-base md:text-lg font-bold text-left">
-                                        {entry.routineName ||
-                                          "Untitled Routine"}
-                                      </h3>
-                                      <svg
-                                        className={`w-5 h-5 md:hidden transition-transform duration-200 ${
-                                          isExpanded ? "rotate-180" : ""
-                                        }`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M19 9l-7 7-7-7"
-                                        />
-                                      </svg>
-                                    </div>
-                                    <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
-                                      {activeDay === "All" && (
-                                        <span className="text-xs md:text-sm font-semibold">
-                                          {entry.day}
-                                        </span>
-                                      )}
-                                      <span className="text-xs md:text-sm font-semibold">
-                                        {entry.time}
-                                      </span>
-                                      <span className="text-xs md:text-sm font-semibold">
-                                        {entry.room}
-                                      </span>
-                                      <svg
-                                        className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
-                                          isExpanded ? "rotate-180" : ""
-                                        }`}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M19 9l-7 7-7-7"
-                                        />
-                                      </svg>
-                                    </div>
-                                  </div>
-                                  {/* Second row: Dancer indicators (only show if searching multiple dancers) */}
+                                <div className="flex items-center justify-between w-full md:flex-1 gap-2">
+                                  <h3 className="text-base md:text-lg font-bold text-left">
+                                    <span className="opacity-75 mr-2">
+                                      #{entry.routineNumber}
+                                    </span>
+                                    {entry.routineName || "Untitled Routine"}
+                                  </h3>
+                                  {/* Show dancer badges in header when multiple searched dancers */}
                                   {showDancerIndicator &&
-                                    matchingDancers.length > 0 && (
-                                      <div className="flex flex-wrap gap-2">
+                                    matchingDancers.length > 1 && (
+                                      <div className="hidden md:flex items-center gap-1">
                                         {matchingDancers.map((dancer) => (
                                           <div
                                             key={dancer.index}
-                                            className="flex items-center gap-1.5 px-2 py-1 bg-white bg-opacity-25 rounded-full"
-                                          >
-                                            <div
-                                              className={`w-2.5 h-2.5 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
-                                            ></div>
-                                            <span className="text-xs font-semibold">
-                                              {dancer.name}
-                                            </span>
-                                          </div>
+                                            className={`w-3 h-3 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
+                                            title={dancer.name}
+                                          ></div>
                                         ))}
                                       </div>
                                     )}
+                                  <svg
+                                    className={`w-5 h-5 md:hidden transition-transform duration-200 ${
+                                      isExpanded ? "rotate-180" : ""
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 9l-7 7-7-7"
+                                    />
+                                  </svg>
+                                </div>
+                                <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
+                                  {activeDay === "All" && (
+                                    <span className="text-xs md:text-sm font-semibold">
+                                      {entry.day}
+                                    </span>
+                                  )}
+                                  <span className="text-xs md:text-sm font-semibold">
+                                    {entry.time}
+                                  </span>
+                                  <span className="text-xs md:text-sm font-semibold">
+                                    {entry.room}
+                                  </span>
+                                  <svg
+                                    className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
+                                      isExpanded ? "rotate-180" : ""
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 9l-7 7-7-7"
+                                    />
+                                  </svg>
                                 </div>
                               </button>
 
                               {/* Accordion Content - Collapsed by Default */}
                               {isExpanded && (
                                 <div className="p-6 bg-white">
-                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                                    <div className="text-center">
-                                      <div className="text-xs text-gray-500 mb-1">
-                                        Routine #
-                                      </div>
-                                      <div className="text-base font-semibold text-gray-900">
-                                        {entry.routineNumber}
-                                      </div>
-                                    </div>
+                                  <div className="flex flex-wrap gap-4">
                                     {entry.category && (
                                       <div className="text-center">
                                         <div className="text-xs text-gray-500 mb-1">
@@ -668,47 +651,40 @@ function SearchPageContent() {
                                         </div>
                                       </div>
                                     )}
-                                  </div>
-
-                                  {/* Combined Dancer Indicator and Award Time */}
-                                  {(showDancerIndicator &&
-                                    matchingDancers.length > 0) ||
-                                  nextAward ? (
-                                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                                      {/* Award Time */}
-                                      {nextAward && (
-                                        <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-2xl">🏆</span>
-                                            <span className="text-base font-semibold text-amber-800">
-                                              {nextAward.time} in{" "}
-                                              {nextAward.room}
-                                            </span>
+                                    {nextAward && (
+                                      <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border-2 border-amber-300 rounded-lg ml-auto">
+                                        <span className="text-2xl">🏆</span>
+                                        <div>
+                                          <div className="text-xs text-amber-700">
+                                            Awards
+                                          </div>
+                                          <div className="text-sm font-bold text-amber-900">
+                                            {nextAward.time} in {nextAward.room}
                                           </div>
                                         </div>
-                                      )}
+                                      </div>
+                                    )}
+                                  </div>
 
-                                      {/* Dancer indicator for multi-dancer searches */}
-                                      {showDancerIndicator &&
-                                        matchingDancers.length > 0 && (
-                                          <div className="flex flex-wrap gap-2 ml-auto">
-                                            {matchingDancers.map((dancer) => (
-                                              <div
-                                                key={dancer.index}
-                                                className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
-                                              >
-                                                <div
-                                                  className={`w-3 h-3 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
-                                                ></div>
-                                                <span className="text-sm font-semibold text-gray-700">
-                                                  {dancer.name}
-                                                </span>
-                                              </div>
-                                            ))}
+                                  {/* Dancer indicator for multi-dancer searches */}
+                                  {showDancerIndicator &&
+                                    matchingDancers.length > 0 && (
+                                      <div className="flex flex-wrap gap-2 mt-4">
+                                        {matchingDancers.map((dancer) => (
+                                          <div
+                                            key={dancer.index}
+                                            className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
+                                          >
+                                            <div
+                                              className={`w-3 h-3 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
+                                            ></div>
+                                            <span className="text-sm font-semibold text-gray-700">
+                                              {dancer.name}
+                                            </span>
                                           </div>
-                                        )}
-                                    </div>
-                                  ) : null}
+                                        ))}
+                                      </div>
+                                    )}
                                 </div>
                               )}
                             </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Papa from "papaparse";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAwards } from "../hooks/useAwards";
 import { DanceEntry } from "../types/dance";
 
@@ -13,7 +13,8 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<string | null>(null);
-  const { findNextAward } = useAwards();
+  const [filtersExpanded, setFiltersExpanded] = useState<boolean>(false);
+  const { findNextAward, isAwardBetween, parseTime } = useAwards();
 
   // Filters
   const [selectedDay, setSelectedDay] = useState<string>("All");
@@ -165,8 +166,57 @@ export default function SchedulePage() {
             Filter dances by day, room, and age group
           </p>
 
+          {/* Mobile Filter Toggle Button */}
+          <button
+            onClick={() => setFiltersExpanded(!filtersExpanded)}
+            className="md:hidden w-full mb-4 flex items-center justify-between px-4 py-3 bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium rounded-lg transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                />
+              </svg>
+              Filters
+              {(selectedDay !== "All" ||
+                selectedRoom !== "All" ||
+                selectedAgeGroup !== "All") && (
+                <span className="bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full">
+                  Active
+                </span>
+              )}
+            </span>
+            <svg
+              className={`w-5 h-5 transition-transform duration-200 ${
+                filtersExpanded ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div
+            className={`${
+              filtersExpanded ? "block" : "hidden"
+            } md:block grid grid-cols-1 md:grid-cols-3 gap-4 mb-4`}
+          >
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Day
@@ -252,168 +302,220 @@ export default function SchedulePage() {
           <div className="bg-white rounded-lg shadow-xl p-4 md:p-6">
             <div className="space-y-3">
               {uniqueFilteredData.length > 0 ? (
-                uniqueFilteredData.map((entry, index) => {
-                  const uniqueKey = `${entry.routineNumber}-${entry.day}-${entry.time}`;
-                  const isExpanded = expandedIndex === uniqueKey;
-                  const dancerCount = entry.dancerName?.split(",").length || 1;
-                  const isGroupRoutine = dancerCount > 1; // Show all dancers if 2 or more
-                  const nextAward = findNextAward(
-                    entry.day,
-                    entry.time,
-                    entry.room,
-                  );
+                uniqueFilteredData
+                  .sort((a, b) => {
+                    // Sort by day first, then by time
+                    const dayIndexA = dayOrder.indexOf(a.day);
+                    const dayIndexB = dayOrder.indexOf(b.day);
+                    if (dayIndexA !== dayIndexB) {
+                      return dayIndexA - dayIndexB;
+                    }
+                    return parseTime(a.time) - parseTime(b.time);
+                  })
+                  .map((entry, index, sortedEntries) => {
+                    const uniqueKey = `${entry.routineNumber}-${entry.day}-${entry.time}`;
+                    const isExpanded = expandedIndex === uniqueKey;
+                    const dancerCount =
+                      entry.dancerName?.split(",").length || 1;
+                    const isGroupRoutine = dancerCount > 1; // Show all dancers if 2 or more
+                    const nextAward = findNextAward(
+                      entry.day,
+                      entry.time,
+                      entry.room,
+                    );
 
-                  return (
-                    <div
-                      key={uniqueKey}
-                      className="border-2 border-gray-300 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200"
-                    >
-                      {/* Accordion Header */}
-                      <button
-                        onClick={() =>
-                          setExpandedIndex(isExpanded ? null : uniqueKey)
-                        }
-                        className="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors"
-                      >
-                        <div className="flex items-center justify-between w-full md:flex-1">
-                          <h3 className="text-base md:text-lg font-bold text-left">
-                            {entry.routineName || "Untitled Routine"}
-                          </h3>
-                          <svg
-                            className={`w-5 h-5 md:hidden transition-transform duration-200 ${
-                              isExpanded ? "rotate-180" : ""
-                            }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                    const nextEntry = sortedEntries[index + 1];
+                    const awardBetween = nextEntry
+                      ? isAwardBetween(
+                          entry.day,
+                          entry.room,
+                          entry.time,
+                          nextEntry.time,
+                        )
+                      : null;
+
+                    const isLastDance =
+                      !nextEntry ||
+                      nextEntry.day !== entry.day ||
+                      nextEntry.room !== entry.room;
+                    const awardAfterLast = isLastDance ? nextAward : null;
+
+                    return (
+                      <React.Fragment key={uniqueKey}>
+                        <div className="border-2 border-gray-300 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200">
+                          {/* Accordion Header */}
+                          <button
+                            onClick={() =>
+                              setExpandedIndex(isExpanded ? null : uniqueKey)
+                            }
+                            className="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                        <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
-                          <span className="text-xs md:text-sm font-semibold">
-                            {entry.day}
-                          </span>
-                          <span className="text-xs md:text-sm font-semibold">
-                            {entry.time}
-                          </span>
-                          <span className="text-xs md:text-sm font-semibold">
-                            {entry.room}
-                          </span>
-                          <svg
-                            className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
-                              isExpanded ? "rotate-180" : ""
-                            }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      </button>
-
-                      {/* Accordion Content */}
-                      {isExpanded && (
-                        <div className="p-6 bg-white">
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            <div className="text-center">
-                              <div className="text-xs text-gray-500 mb-1">
-                                Routine #
-                              </div>
-                              <div className="text-base font-semibold text-gray-900">
-                                {entry.routineNumber}
-                              </div>
-                            </div>
-                            {entry.category && (
-                              <div className="text-center">
-                                <div className="text-xs text-gray-500 mb-1">
-                                  Category
-                                </div>
-                                <div className="text-base font-semibold text-gray-900">
-                                  {entry.category}
-                                </div>
-                              </div>
-                            )}
-                            {entry.ageGroup && (
-                              <div className="text-center">
-                                <div className="text-xs text-gray-500 mb-1">
-                                  Age Group
-                                </div>
-                                <div className="text-base font-semibold text-gray-900">
-                                  {entry.ageGroup}
-                                </div>
-                              </div>
-                            )}
-                            {entry.studio && (
-                              <div className="text-center">
-                                <div className="text-xs text-gray-500 mb-1">
-                                  Studio
-                                </div>
-                                <div className="text-base font-semibold text-gray-900">
-                                  {entry.studio}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Dancer Names */}
-                          {isGroupRoutine ? (
-                            <div className="mt-4 pt-4 border-t border-gray-200">
-                              <div className="text-xs text-gray-500 mb-2">
-                                Dancers in this routine:
-                              </div>
-                              <div className="text-sm text-gray-700 max-h-32 overflow-y-auto bg-gray-50 p-3 rounded">
-                                {entry.dancerName
-                                  ?.split(",")
-                                  .map((dancer, i) => (
-                                    <span
-                                      key={i}
-                                      className="inline-block mr-2 mb-1"
-                                    >
-                                      {dancer.trim()}
-                                      {i < dancerCount - 1 && ","}
-                                    </span>
-                                  ))}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="mt-4 pt-4 border-t border-gray-200 text-center">
-                              <span className="text-xs text-gray-500">
-                                Dancer:{" "}
-                              </span>
-                              <span className="text-sm font-semibold text-gray-900">
-                                {entry.dancerName}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Award Time */}
-                          {nextAward && (
-                            <div className="mt-4 p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
-                              <div className="flex items-center gap-2">
-                                <span className="text-2xl">🏆</span>
-                                <span className="text-base font-semibold text-amber-800">
-                                  {nextAward.time} in {nextAward.room}
+                            <div className="flex items-center justify-between w-full md:flex-1">
+                              <h3 className="text-base md:text-lg font-bold text-left">
+                                <span className="opacity-75 mr-2">
+                                  #{entry.routineNumber}
                                 </span>
+                                {entry.routineName || "Untitled Routine"}
+                              </h3>
+                              <svg
+                                className={`w-5 h-5 md:hidden transition-transform duration-200 ${
+                                  isExpanded ? "rotate-180" : ""
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            </div>
+                            <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
+                              <span className="text-xs md:text-sm font-semibold">
+                                {entry.day}
+                              </span>
+                              <span className="text-xs md:text-sm font-semibold">
+                                {entry.time}
+                              </span>
+                              <span className="text-xs md:text-sm font-semibold">
+                                {entry.room}
+                              </span>
+                              <svg
+                                className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
+                                  isExpanded ? "rotate-180" : ""
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            </div>
+                          </button>
+
+                          {/* Accordion Content */}
+                          {isExpanded && (
+                            <div className="p-6 bg-white">
+                              <div className="flex flex-wrap gap-4 items-center">
+                                {entry.category && (
+                                  <div className="text-center">
+                                    <div className="text-xs text-gray-500 mb-1">
+                                      Category
+                                    </div>
+                                    <div className="text-base font-semibold text-gray-900">
+                                      {entry.category}
+                                    </div>
+                                  </div>
+                                )}
+                                {entry.ageGroup && (
+                                  <div className="text-center">
+                                    <div className="text-xs text-gray-500 mb-1">
+                                      Age Group
+                                    </div>
+                                    <div className="text-base font-semibold text-gray-900">
+                                      {entry.ageGroup}
+                                    </div>
+                                  </div>
+                                )}
+                                {entry.studio && (
+                                  <div className="text-center">
+                                    <div className="text-xs text-gray-500 mb-1">
+                                      Studio
+                                    </div>
+                                    <div className="text-base font-semibold text-gray-900">
+                                      {entry.studio}
+                                    </div>
+                                  </div>
+                                )}
+                                {nextAward && (
+                                  <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border-2 border-amber-300 rounded-lg ml-auto">
+                                    <span className="text-2xl">🏆</span>
+                                    <div>
+                                      <div className="text-xs text-amber-700">
+                                        Awards
+                                      </div>
+                                      <div className="text-sm font-bold text-amber-900">
+                                        {nextAward.time} in {nextAward.room}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
+
+                              {/* Dancer Names */}
+                              {isGroupRoutine ? (
+                                <div className="mt-4 pt-4 border-t border-gray-200">
+                                  <div className="text-xs text-gray-500 mb-2">
+                                    Dancers in this routine:
+                                  </div>
+                                  <div className="text-sm text-gray-700 max-h-32 overflow-y-auto bg-gray-50 p-3 rounded">
+                                    {entry.dancerName
+                                      ?.split(",")
+                                      .map((dancer, i) => (
+                                        <span
+                                          key={i}
+                                          className="inline-block mr-2 mb-1"
+                                        >
+                                          {dancer.trim()}
+                                          {i < dancerCount - 1 && ","}
+                                        </span>
+                                      ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+                                  <span className="text-xs text-gray-500">
+                                    Dancer:{" "}
+                                  </span>
+                                  <span className="text-sm font-semibold text-gray-900">
+                                    {entry.dancerName}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })
+
+                        {/* Award Separator */}
+                        {awardBetween && (
+                          <div className="flex items-center gap-3 py-3">
+                            <div className="flex-1 h-px bg-gray-400"></div>
+                            <div className="flex items-center gap-2 px-4 py-2 bg-amber-100 border-2 border-amber-400 rounded-lg">
+                              <span className="text-xl">🏆</span>
+                              <span className="text-sm font-bold text-amber-900">
+                                Awards at {awardBetween.time} in{" "}
+                                {awardBetween.room}
+                              </span>
+                            </div>
+                            <div className="flex-1 h-px bg-gray-400"></div>
+                          </div>
+                        )}
+
+                        {/* Award after last dance */}
+                        {awardAfterLast && !awardBetween && (
+                          <div className="flex items-center gap-3 py-3">
+                            <div className="flex-1 h-px bg-gray-400"></div>
+                            <div className="flex items-center gap-2 px-4 py-2 bg-amber-100 border-2 border-amber-400 rounded-lg">
+                              <span className="text-xl">🏆</span>
+                              <span className="text-sm font-bold text-amber-900">
+                                Awards at {awardAfterLast.time} in{" "}
+                                {awardAfterLast.room}
+                              </span>
+                            </div>
+                            <div className="flex-1 h-px bg-gray-400"></div>
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })
               ) : (
                 <p className="text-gray-600 text-center py-8">
                   No dances match the selected filters.

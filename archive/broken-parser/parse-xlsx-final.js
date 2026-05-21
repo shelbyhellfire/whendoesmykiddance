@@ -277,6 +277,10 @@ const writeScheduleCSV = async () => {
     for (let i = 0; i < Math.min(3, entries.length); i++) {
       console.log(`\n${i + 1}.`, JSON.stringify(entries[i], null, 2));
     }
+
+    console.log("\n⚠️  NOTE: The Excel parser has data issues.");
+    console.log("⚠️  DO NOT copy schedule-parsed.csv to schedule.csv!");
+    console.log("⚠️  The manual schedule.csv is the correct source.");
   } catch (error) {
     console.error("Error:", error);
     process.exit(1);

@@ -28,14 +28,27 @@ npm install
 
 ### Adding Your Schedule Data
 
-1. Replace the `public/schedule.csv` file with your competition schedule
+1. Edit `public/schedule.csv` directly with your competition schedule
 2. Make sure your CSV has the following columns:
    - `dancerName` (required)
    - `day` (required)
-     dancerName,day,time,room,routineNumber,routineName
-     Emma Johnson,Saturday,9:30 AM,Studio A,101,Ballet Dreams
-     Emma Johnson,Saturday,2:15 PM,Studio B,145,Jazz Funk
-     Sophia Martinez,Saturday,10:45 AM,Studio A,115,Tap Sensation
+   - `time` (required)
+   - `room` (required)
+   - `routineNumber` (required)
+   - `routineName` (optional)
+   - `category` (optional)
+   - `ageGroup` (optional)
+
+Example:
+
+```csv
+dancerName,day,time,room,routineNumber,routineName,category,ageGroup
+Emma Johnson,Saturday,9:30 AM,Studio A,101,Ballet Dreams,Solo,PT 9-11
+Emma Johnson,Saturday,2:15 PM,Studio B,145,Jazz Funk,Jazz,PT 9-11
+Sophia Martinez,Saturday,10:45 AM,Studio A,115,Tap Sensation,Tap,PT 9-11
+```
+
+**Note:** A broken Excel parser has been archived in `archive/broken-parser/` - do not use it.
 
 ````
 
