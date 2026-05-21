@@ -222,31 +222,10 @@ export default function DancerSchedulePage({ params }: PageProps) {
             </Link>
           </div>
 
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-2">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl md:text-3xl font-bold text-gray-800">
               {dancerName}'s Schedule
             </h1>
-            <p className="text-gray-600 mb-3">
-              {filteredResults.length} dance
-              {filteredResults.length !== 1 ? "s" : ""}
-            </p>
-
-            {/* Live Stream Link */}
-            <a
-              href="https://starzdancecomp.com/TopShot/livestream/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-              Watch Live Stream
-            </a>
-          </div>
-
-          <div className="flex items-center justify-between mt-3">
-            <div className="invisible">spacer</div>
             <button
               onClick={handleCopyLink}
               className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all whitespace-nowrap ${
@@ -292,10 +271,29 @@ export default function DancerSchedulePage({ params }: PageProps) {
               )}
             </button>
           </div>
+
+          {/* Live Stream Link */}
+          <a
+            href="https://starzdancecomp.com/TopShot/livestream/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-2 mt-3 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Watch Live Stream
+          </a>
         </div>
 
         {/* Schedule */}
         <div className="bg-white rounded-lg shadow-xl px-2 py-4 md:p-8">
+          {/* Dance Count */}
+          <p className="text-gray-600 mb-4 px-2">
+            {filteredResults.length} dance
+            {filteredResults.length !== 1 ? "s" : ""}
+          </p>
+
           {/* Day Tabs */}
           <div className="flex border-b border-gray-300 mb-6 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
             <button
