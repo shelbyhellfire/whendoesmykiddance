@@ -162,9 +162,22 @@ export default function SchedulePage() {
           <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2">
             Browse Full Schedule
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-4">
             Filter dances by day, room, and age group
           </p>
+
+          {/* Live Stream Link */}
+          <a
+            href="https://starzdancecomp.com/TopShot/livestream/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors shadow-md"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Watch Live Stream
+          </a>
 
           {/* Mobile Filter Toggle Button */}
           <button
