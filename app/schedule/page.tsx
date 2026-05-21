@@ -321,7 +321,7 @@ export default function SchedulePage() {
           </p>
 
           {/* Compact Filter Dropdowns */}
-          <div className="mb-2 flex flex-nowrap items-center gap-3 overflow-x-auto">
+          <div className="mb-2 flex flex-wrap items-start gap-3">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-medium text-gray-600">
                 Day

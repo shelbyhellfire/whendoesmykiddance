@@ -134,14 +134,30 @@ function SearchPageContent() {
       });
   }, []);
 
-  // Load dancers from URL parameters on initial load
+  // Load dancers from URL parameters or sessionStorage on initial load
   useEffect(() => {
     const dancerParams = searchParams.getAll("dancer");
     if (dancerParams.length > 0) {
       setDancers(dancerParams);
-      // Trigger search once data is loaded
-      if (danceData.length > 0) {
+      // Save to sessionStorage
+      sessionStorage.setItem("searchDancers", JSON.stringify(dancerParams));
+      // Only show results for multiple dancers
+      if (danceData.length > 0 && dancerParams.length > 1) {
         performSearch(dancerParams);
+      }
+    } else {
+      // Try to restore from sessionStorage (but don't show results)
+      const savedDancers = sessionStorage.getItem("searchDancers");
+      if (savedDancers) {
+        try {
+          const parsedDancers = JSON.parse(savedDancers);
+          if (parsedDancers.length > 0) {
+            setDancers(parsedDancers);
+            // Don't perform search when restoring from sessionStorage
+          }
+        } catch (e) {
+          console.error("Failed to parse saved dancers", e);
+        }
       }
     }
   }, [searchParams, danceData]);
@@ -188,6 +204,9 @@ function SearchPageContent() {
     // Update URL with dancer parameters
     const validDancers = dancers.filter((name) => name.trim().length > 0);
     if (validDancers.length === 0) return;
+
+    // Save to sessionStorage before navigating
+    sessionStorage.setItem("searchDancers", JSON.stringify(validDancers));
 
     // Build URL parameters
     const params = new URLSearchParams();
@@ -248,6 +267,32 @@ function SearchPageContent() {
     }
   };
 
+  const validateDancerName = (name: string): boolean => {
+    if (name.trim().length === 0) return true; // Empty is valid (not filled yet)
+    return uniqueDancerNames.some(
+      (validName) => validName.toLowerCase() === name.trim().toLowerCase(),
+    );
+  };
+
+  const handleBlur = (index: number) => {
+    setTimeout(() => {
+      setShowSuggestions(null);
+      // Clear invalid entries
+      const currentValue = dancers[index];
+      if (currentValue.trim().length > 0 && !validateDancerName(currentValue)) {
+        const newDancers = [...dancers];
+        newDancers[index] = "";
+        setDancers(newDancers);
+      }
+    }, 200);
+  };
+
+  const isSearchValid = (): boolean => {
+    const filledDancers = dancers.filter((name) => name.trim().length > 0);
+    if (filledDancers.length === 0) return false;
+    return filledDancers.every((name) => validateDancerName(name));
+  };
+
   const selectSuggestion = (index: number, name: string) => {
     const newDancers = [...dancers];
     newDancers[index] = name;
@@ -298,6 +343,16 @@ function SearchPageContent() {
       isGradient: false,
     };
   };
+
+  const handleClearSearch = () => {
+    setDancers([""]);
+    setFilteredResults([]);
+    setHasSearched(false);
+    sessionStorage.removeItem("searchDancers");
+    router.push("/search");
+  };
+
+  const hasAnyDancerFilled = dancers.some((name) => name.trim().length > 0);
 
   const handleKeyPress = (e: React.KeyboardEvent, index: number) => {
     if (e.key === "Enter") {
@@ -359,6 +414,17 @@ function SearchPageContent() {
             schedules side-by-side with color-coding!
           </p>
 
+          {hasAnyDancerFilled && (
+            <div className="flex justify-end mb-3">
+              <button
+                onClick={handleClearSearch}
+                className="text-sm text-gray-500 hover:text-gray-700 hover:underline transition-colors"
+              >
+                Clear Search
+              </button>
+            </div>
+          )}
+
           <div className="space-y-3">
             {dancers.map((dancer, index) => (
               <div key={index} className="flex gap-2 items-center relative">
@@ -380,10 +446,7 @@ function SearchPageContent() {
                         setShowSuggestions(index);
                       }
                     }}
-                    onBlur={() => {
-                      // Delay to allow click on suggestion
-                      setTimeout(() => setShowSuggestions(null), 200);
-                    }}
+                    onBlur={() => handleBlur(index)}
                     placeholder={
                       dancers.length === 1
                         ? "Enter dancer's name..."
@@ -399,7 +462,10 @@ function SearchPageContent() {
                           <button
                             key={name}
                             type="button"
-                            onClick={() => selectSuggestion(index, name)}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              selectSuggestion(index, name);
+                            }}
                             className="w-full text-left px-4 py-2 hover:bg-purple-100 transition-colors text-gray-800"
                           >
                             {name}
@@ -431,7 +497,8 @@ function SearchPageContent() {
               )}
               <button
                 onClick={handleSearch}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm md:text-base py-2 px-4 md:py-3 md:px-8 rounded-lg transition duration-200 ml-auto whitespace-nowrap"
+                disabled={!isSearchValid()}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm md:text-base py-2 px-4 md:py-3 md:px-8 rounded-lg transition duration-200 ml-auto whitespace-nowrap disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 View Schedule
               </button>
