@@ -313,6 +313,44 @@ export default function SchedulePage() {
 
         {!loading && !error && (
           <div className="bg-white rounded-lg shadow-xl p-4 md:p-6">
+            {/* Filter Headers - Show selected filters */}
+            {(selectedDay !== "All" ||
+              selectedRoom !== "All" ||
+              selectedAgeGroup !== "All") && (
+              <div className="mb-4 flex flex-wrap gap-2">
+                {selectedDay !== "All" && (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 border border-purple-300 rounded-lg">
+                    <span className="text-xs font-medium text-purple-700">
+                      Day:
+                    </span>
+                    <span className="text-sm font-bold text-purple-900">
+                      {selectedDay}
+                    </span>
+                  </div>
+                )}
+                {selectedRoom !== "All" && (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-lg">
+                    <span className="text-xs font-medium text-blue-700">
+                      Room:
+                    </span>
+                    <span className="text-sm font-bold text-blue-900">
+                      {selectedRoom}
+                    </span>
+                  </div>
+                )}
+                {selectedAgeGroup !== "All" && (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 border border-green-300 rounded-lg">
+                    <span className="text-xs font-medium text-green-700">
+                      Age Group:
+                    </span>
+                    <span className="text-sm font-bold text-green-900">
+                      {selectedAgeGroup}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="space-y-3">
               {uniqueFilteredData.length > 0 ? (
                 uniqueFilteredData
