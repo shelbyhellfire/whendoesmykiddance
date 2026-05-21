@@ -91,24 +91,61 @@ export default function SchedulePage() {
           skipEmptyLines: true,
           complete: (results) => {
             const entries = results.data as any[];
+            console.log("Total CSV rows:", entries.length);
             // Filter for Grand National entries
             const gns = entries
               .filter((row: any) => {
-                const description = String(row[0] || "");
-                return description.includes("Grand National");
+                // Check both first column and other columns for Grand National text
+                const rowString = JSON.stringify(row);
+                return rowString.includes("Grand National");
               })
               .map((row: any) => {
-                const fullText = String(row[0] || "");
-                // Parse out room, day, time, and description
-                const parts = fullText.split(/\s+/);
-                const room = parts[0];
-                const day = parts[1];
-                const timeMatch = fullText.match(/\d{1,2}:\d{2}\s*[AP]M/);
-                const time = timeMatch ? timeMatch[0] : "";
-                const descMatch = fullText.match(/--(.+?)--/);
-                const description = descMatch
-                  ? descMatch[1].trim()
-                  : "Grand National";
+                console.log("Raw Grand National row:", row);
+
+                // Handle two formats:
+                // Format 1: Quoted string in first column with newlines
+                // Format 2: Comma-separated values across columns
+
+                let room = "";
+                let day = "";
+                let time = "";
+                let description = "";
+
+                if (row[0] && row[0].includes("Grand National")) {
+                  // Format 1: All data in first column
+                  const fullText = String(row[0] || "")
+                    .replace(/\n/g, " ")
+                    .replace(/\s+/g, " ");
+                  console.log("Format 1 - fullText:", fullText);
+
+                  const parts = fullText.split(/\s+/);
+                  room = parts[0];
+                  day = parts[1];
+                  const timeMatch = fullText.match(/\d{1,2}:\d{2}\s*[AP]M/);
+                  time = timeMatch ? timeMatch[0] : "";
+                  const descMatch = fullText.match(/--(.+?)--/);
+                  description = descMatch
+                    ? descMatch[1].trim()
+                    : "Grand National";
+                } else {
+                  // Format 2: Data spread across columns
+                  room = row[0] || "";
+                  day = row[4] || ""; // Day is in column 5 (index 4)
+                  time = row[8] || ""; // Time is in column 9 (index 8)
+
+                  // Find which column has the description
+                  for (let i = 0; i < row.length; i++) {
+                    if (row[i] && String(row[i]).includes("Grand National")) {
+                      const descMatch = String(row[i]).match(/--(.+?)--/);
+                      description = descMatch
+                        ? descMatch[1].trim()
+                        : String(row[i]);
+                      break;
+                    }
+                  }
+                }
+
+                console.log("Parsed:", { room, day, time, description });
 
                 // Extract level and type from description
                 let level = "";
@@ -136,7 +173,9 @@ export default function SchedulePage() {
                   type = "Awards";
                 }
 
-                return { room, day, time, description, level, type };
+                const result = { room, day, time, description, level, type };
+                console.log("Parsed Grand National:", result);
+                return result;
               });
             console.log("Grand Nationals loaded:", gns);
             setGrandNationals(gns);
