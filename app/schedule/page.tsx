@@ -167,55 +167,55 @@ export default function SchedulePage() {
           </p>
 
           {/* Compact Filter Dropdowns */}
-          <div className="mb-2 flex flex-nowrap items-center gap-2 overflow-x-auto">
-            <select
-              value={selectedDay}
-              onChange={(e) => setSelectedDay(e.target.value)}
-              className="px-3 py-1.5 bg-purple-100 border border-purple-300 rounded-lg text-sm font-bold text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 w-[100px] flex-shrink-0"
-            >
-              <option value="All">
-                {selectedDay === "All" ? "Day" : "All"}
-              </option>
-              {days
-                .filter((d) => d !== "All")
-                .map((day) => (
+          <div className="mb-2 flex flex-nowrap items-center gap-3 overflow-x-auto">
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-medium text-gray-600">
+                Day
+              </label>
+              <select
+                value={selectedDay}
+                onChange={(e) => setSelectedDay(e.target.value)}
+                className="px-3 py-1.5 bg-purple-100 border border-purple-300 rounded-lg text-sm font-bold text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 w-[100px] flex-shrink-0"
+              >
+                {days.map((day) => (
                   <option key={day} value={day}>
                     {day}
                   </option>
                 ))}
-            </select>
-            <select
-              value={selectedRoom}
-              onChange={(e) => setSelectedRoom(e.target.value)}
-              className="px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-lg text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 w-[100px] flex-shrink-0"
-            >
-              <option value="All">
-                {selectedRoom === "All" ? "Room" : "All"}
-              </option>
-              {rooms
-                .filter((r) => r !== "All")
-                .map((room) => (
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-medium text-gray-600">
+                Room
+              </label>
+              <select
+                value={selectedRoom}
+                onChange={(e) => setSelectedRoom(e.target.value)}
+                className="px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-lg text-sm font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 w-[100px] flex-shrink-0"
+              >
+                {rooms.map((room) => (
                   <option key={room} value={room}>
                     {room}
                   </option>
                 ))}
-            </select>
-            <select
-              value={selectedAgeGroup}
-              onChange={(e) => setSelectedAgeGroup(e.target.value)}
-              className="px-3 py-1.5 bg-green-100 border border-green-300 rounded-lg text-sm font-bold text-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 w-[100px] flex-shrink-0"
-            >
-              <option value="All">
-                {selectedAgeGroup === "All" ? "Age" : "All"}
-              </option>
-              {ageGroups
-                .filter((a) => a !== "All")
-                .map((age) => (
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-medium text-gray-600">
+                Age
+              </label>
+              <select
+                value={selectedAgeGroup}
+                onChange={(e) => setSelectedAgeGroup(e.target.value)}
+                className="px-3 py-1.5 bg-green-100 border border-green-300 rounded-lg text-sm font-bold text-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 w-[100px] flex-shrink-0"
+              >
+                {ageGroups.map((age) => (
                   <option key={age} value={age}>
                     {age}
                   </option>
                 ))}
-            </select>
+              </select>
+            </div>
           </div>
           {(selectedDay !== "All" ||
             selectedRoom !== "All" ||
