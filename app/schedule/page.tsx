@@ -609,11 +609,16 @@ export default function SchedulePage() {
                 const filtered = grandNationals.filter((gn) => {
                   const matchesDay =
                     selectedDay === "All" ||
-                    selectedDay === "Sunday" ||
-                    gn.day === "Sun";
+                    gn.day === selectedDay ||
+                    (selectedDay === "Sunday" && gn.day === "Sun") ||
+                    (selectedDay === "Saturday" && gn.day === "Sat") ||
+                    (selectedDay === "Friday" && gn.day === "Fri") ||
+                    (selectedDay === "Thursday" && gn.day === "Thu") ||
+                    (selectedDay === "Wednesday" && gn.day === "Wed") ||
+                    (selectedDay === "Tuesday" && gn.day === "Tue");
                   const matchesRoom =
-                    selectedRoom === "All" || gn.room.includes(selectedRoom);
-                  return matchesDay && matchesRoom && gn.day === "Sun";
+                    selectedRoom === "All" || gn.room === selectedRoom;
+                  return matchesDay && matchesRoom;
                 });
                 console.log(
                   "Filtered Grand Nationals:",
@@ -661,11 +666,16 @@ export default function SchedulePage() {
                 grandNationals.filter((gn) => {
                   const matchesDay =
                     selectedDay === "All" ||
-                    selectedDay === "Sunday" ||
-                    gn.day === "Sun";
+                    gn.day === selectedDay ||
+                    (selectedDay === "Sunday" && gn.day === "Sun") ||
+                    (selectedDay === "Saturday" && gn.day === "Sat") ||
+                    (selectedDay === "Friday" && gn.day === "Fri") ||
+                    (selectedDay === "Thursday" && gn.day === "Thu") ||
+                    (selectedDay === "Wednesday" && gn.day === "Wed") ||
+                    (selectedDay === "Tuesday" && gn.day === "Tue");
                   const matchesRoom =
-                    selectedRoom === "All" || gn.room.includes(selectedRoom);
-                  return matchesDay && matchesRoom && gn.day === "Sun";
+                    selectedRoom === "All" || gn.room === selectedRoom;
+                  return matchesDay && matchesRoom;
                 }).length === 0 && (
                   <p className="text-gray-600 text-center py-8">
                     No dances match the selected filters.
