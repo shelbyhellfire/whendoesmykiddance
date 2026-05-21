@@ -220,6 +220,21 @@ export default function SchedulePage() {
     return acc;
   }, [] as DanceEntry[]);
 
+  // Filter Grand Nationals based on selected filters
+  const filteredGrandNationals = grandNationals.filter((gn) => {
+    const matchesDay =
+      selectedDay === "All" ||
+      gn.day === selectedDay ||
+      (selectedDay === "Sunday" && gn.day === "Sun") ||
+      (selectedDay === "Saturday" && gn.day === "Sat") ||
+      (selectedDay === "Friday" && gn.day === "Fri") ||
+      (selectedDay === "Thursday" && gn.day === "Thu") ||
+      (selectedDay === "Wednesday" && gn.day === "Wed") ||
+      (selectedDay === "Tuesday" && gn.day === "Tue");
+    const matchesRoom = selectedRoom === "All" || gn.room === selectedRoom;
+    return matchesDay && matchesRoom;
+  });
+
   const handleClearFilters = () => {
     setSelectedDay("All");
     setSelectedRoom("All");
@@ -343,8 +358,11 @@ export default function SchedulePage() {
 
           {!loading && !error && (
             <p className="text-gray-600 mb-4">
-              Showing {uniqueFilteredData.length} dance
-              {uniqueFilteredData.length !== 1 ? "s" : ""}
+              Showing{" "}
+              {uniqueFilteredData.length + filteredGrandNationals.length}{" "}
+              {uniqueFilteredData.length + filteredGrandNationals.length === 1
+                ? "event"
+                : "events"}
             </p>
           )}
 
@@ -365,20 +383,7 @@ export default function SchedulePage() {
           <div className="bg-white rounded-lg shadow-xl p-4 md:p-6">
             <div className="space-y-3">
               {uniqueFilteredData.length > 0 ||
-              grandNationals.filter((gn) => {
-                const matchesDay =
-                  selectedDay === "All" ||
-                  gn.day === selectedDay ||
-                  (selectedDay === "Sunday" && gn.day === "Sun") ||
-                  (selectedDay === "Saturday" && gn.day === "Sat") ||
-                  (selectedDay === "Friday" && gn.day === "Fri") ||
-                  (selectedDay === "Thursday" && gn.day === "Thu") ||
-                  (selectedDay === "Wednesday" && gn.day === "Wed") ||
-                  (selectedDay === "Tuesday" && gn.day === "Tue");
-                const matchesRoom =
-                  selectedRoom === "All" || gn.room === selectedRoom;
-                return matchesDay && matchesRoom;
-              }).length > 0
+              filteredGrandNationals.length > 0
                 ? uniqueFilteredData
                     .sort((a, b) => {
                       // Sort by day first, then by time
@@ -604,79 +609,42 @@ export default function SchedulePage() {
                     })
                 : null}
 
-              {/* Grand Nationals - Sunday only */}
-              {(() => {
-                const filtered = grandNationals.filter((gn) => {
-                  const matchesDay =
-                    selectedDay === "All" ||
-                    gn.day === selectedDay ||
-                    (selectedDay === "Sunday" && gn.day === "Sun") ||
-                    (selectedDay === "Saturday" && gn.day === "Sat") ||
-                    (selectedDay === "Friday" && gn.day === "Fri") ||
-                    (selectedDay === "Thursday" && gn.day === "Thu") ||
-                    (selectedDay === "Wednesday" && gn.day === "Wed") ||
-                    (selectedDay === "Tuesday" && gn.day === "Tue");
-                  const matchesRoom =
-                    selectedRoom === "All" || gn.room === selectedRoom;
-                  return matchesDay && matchesRoom;
-                });
-                console.log(
-                  "Filtered Grand Nationals:",
-                  filtered,
-                  "Selected Day:",
-                  selectedDay,
-                  "Selected Room:",
-                  selectedRoom,
-                );
-                return filtered.map((gn, index) => (
-                  <div
-                    key={`gn-${index}`}
-                    className="border-2 border-amber-400 rounded-lg overflow-hidden shadow-md bg-gradient-to-r from-amber-50 to-yellow-50"
-                  >
-                    <div className="px-4 py-4 md:px-6 md:py-5">
-                      <div className="flex items-start gap-3">
-                        <span className="text-3xl">🏆</span>
-                        <div className="flex-1">
-                          <h3 className="text-base md:text-lg font-bold text-gray-800 mb-2">
-                            {gn.description}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-3 text-sm md:text-base">
-                            <span className="font-semibold text-gray-700">
-                              Sunday
-                            </span>
-                            <span className="font-semibold text-gray-700">
-                              {gn.time}
-                            </span>
-                            <span className="font-semibold text-gray-700">
-                              Room {gn.room}
-                            </span>
-                          </div>
-                          <p className="text-xs md:text-sm text-gray-600 mt-2">
-                            Participants determined from previous days'
-                            performances
-                          </p>
+              {/* Grand Nationals */}
+              {filteredGrandNationals.map((gn, index) => (
+                <div
+                  key={`gn-${index}`}
+                  className="border-2 border-amber-400 rounded-lg overflow-hidden shadow-md bg-gradient-to-r from-amber-50 to-yellow-50"
+                >
+                  <div className="px-4 py-4 md:px-6 md:py-5">
+                    <div className="flex items-start gap-3">
+                      <span className="text-3xl">🏆</span>
+                      <div className="flex-1">
+                        <h3 className="text-base md:text-lg font-bold text-gray-800 mb-2">
+                          {gn.description}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-3 text-sm md:text-base">
+                          <span className="font-semibold text-gray-700">
+                            Sunday
+                          </span>
+                          <span className="font-semibold text-gray-700">
+                            {gn.time}
+                          </span>
+                          <span className="font-semibold text-gray-700">
+                            Room {gn.room}
+                          </span>
                         </div>
+                        <p className="text-xs md:text-sm text-gray-600 mt-2">
+                          Participants determined from previous days'
+                          performances
+                        </p>
                       </div>
                     </div>
                   </div>
-                ));
-              })()}
+                </div>
+              ))}
 
               {uniqueFilteredData.length === 0 &&
-                grandNationals.filter((gn) => {
-                  const matchesDay =
-                    selectedDay === "All" ||
-                    gn.day === selectedDay ||
-                    (selectedDay === "Sunday" && gn.day === "Sun") ||
-                    (selectedDay === "Saturday" && gn.day === "Sat") ||
-                    (selectedDay === "Friday" && gn.day === "Fri") ||
-                    (selectedDay === "Thursday" && gn.day === "Thu") ||
-                    (selectedDay === "Wednesday" && gn.day === "Wed") ||
-                    (selectedDay === "Tuesday" && gn.day === "Tue");
-                  const matchesRoom =
-                    selectedRoom === "All" || gn.room === selectedRoom;
-                  return matchesDay && matchesRoom;
-                }).length === 0 && (
+                filteredGrandNationals.length === 0 && (
                   <p className="text-gray-600 text-center py-8">
                     No dances match the selected filters.
                   </p>
