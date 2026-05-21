@@ -444,11 +444,18 @@ export default function DancerSchedulePage({ params }: PageProps) {
                                   </div>
                                 </div>
                               )}
+                              {entry.level && (
+                                <div className="text-center">
+                                  <div className="text-[10px] md:text-xs text-gray-500 mb-1">
+                                    Level
+                                  </div>
+                                  <div className="text-xs md:text-base font-semibold text-gray-900">
+                                    {entry.level}
+                                  </div>
+                                </div>
+                              )}
                               {nextAward && (
                                 <div className="flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 bg-amber-50 border border-amber-300 md:border-2 rounded-lg md:ml-auto">
-                                  <span className="text-lg md:text-2xl">
-                                    🏆
-                                  </span>
                                   <div>
                                     <div className="text-[10px] md:text-xs text-amber-700">
                                       Awards

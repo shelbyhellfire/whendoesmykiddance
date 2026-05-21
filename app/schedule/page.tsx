@@ -438,6 +438,16 @@ export default function SchedulePage() {
                                     </div>
                                   </div>
                                 )}
+                                {entry.level && (
+                                  <div className="text-center">
+                                    <div className="text-xs text-gray-500 mb-1">
+                                      Level
+                                    </div>
+                                    <div className="text-base font-semibold text-gray-900">
+                                      {entry.level}
+                                    </div>
+                                  </div>
+                                )}
                                 {entry.studio && (
                                   <div className="text-center">
                                     <div className="text-xs text-gray-500 mb-1">
@@ -450,7 +460,6 @@ export default function SchedulePage() {
                                 )}
                                 {nextAward && (
                                   <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border-2 border-amber-300 rounded-lg ml-auto">
-                                    <span className="text-2xl">🏆</span>
                                     <div>
                                       <div className="text-xs text-amber-700">
                                         Awards
