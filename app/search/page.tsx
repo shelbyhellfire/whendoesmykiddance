@@ -4,6 +4,12 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Papa from "papaparse";
 import React, { Suspense, useEffect, useState } from "react";
+import AwardSeparator from "../components/AwardSeparator";
+import CompareAccordion from "../components/CompareAccordion";
+import CopyLinkButton from "../components/CopyLinkButton";
+import DayTabs from "../components/DayTabs";
+import LoadingState from "../components/LoadingState";
+import PageHeader from "../components/PageHeader";
 import { useAwards } from "../hooks/useAwards";
 import { DanceEntry } from "../types/dance";
 
@@ -18,7 +24,6 @@ function SearchPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [activeDay, setActiveDay] = useState<string>("All");
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
   const [uniqueDancerNames, setUniqueDancerNames] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<number | null>(null);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -62,14 +67,6 @@ function SearchPageContent() {
       light: "bg-emerald-50",
     },
   ];
-
-  // Multiple dancers color (when routine has multiple searched dancers)
-  const multipleColor = {
-    bg: "bg-fuchsia-600",
-    hover: "hover:bg-fuchsia-700",
-    border: "border-fuchsia-300",
-    light: "bg-fuchsia-50",
-  };
 
   const days = ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -228,14 +225,12 @@ function SearchPageContent() {
     router.push(`/compare?${params.toString()}`);
   };
 
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
+  const handleClearSearch = () => {
+    setDancers([""]);
+    setFilteredResults([]);
+    setHasSearched(false);
+    sessionStorage.removeItem("searchDancers");
+    router.push("/search");
   };
 
   const addDancerField = () => {
@@ -268,7 +263,7 @@ function SearchPageContent() {
   };
 
   const validateDancerName = (name: string): boolean => {
-    if (name.trim().length === 0) return true; // Empty is valid (not filled yet)
+    if (name.trim().length === 0) return true;
     return uniqueDancerNames.some(
       (validName) => validName.toLowerCase() === name.trim().toLowerCase(),
     );
@@ -277,7 +272,6 @@ function SearchPageContent() {
   const handleBlur = (index: number) => {
     setTimeout(() => {
       setShowSuggestions(null);
-      // Clear invalid entries
       const currentValue = dancers[index];
       if (currentValue.trim().length > 0 && !validateDancerName(currentValue)) {
         const newDancers = [...dancers];
@@ -301,7 +295,6 @@ function SearchPageContent() {
     setFilteredSuggestions([]);
   };
 
-  // Get which searched dancers are in a routine
   const getMatchingDancers = (entry: DanceEntry) => {
     const searchNames = dancers
       .map((name) => name.trim().toLowerCase())
@@ -315,12 +308,10 @@ function SearchPageContent() {
     return matchingIndices.map((i) => ({ name: dancers[i], index: i }));
   };
 
-  // Determine which color/gradient to use for an entry
   const getEntryColor = (entry: DanceEntry) => {
     const matching = getMatchingDancers(entry);
 
     if (matching.length > 1) {
-      // Create a gradient using the individual dancer colors
       const color1 = dancerColors[matching[0].index % dancerColors.length];
       const color2 = dancerColors[matching[1].index % dancerColors.length];
 
@@ -344,14 +335,6 @@ function SearchPageContent() {
     };
   };
 
-  const handleClearSearch = () => {
-    setDancers([""]);
-    setFilteredResults([]);
-    setHasSearched(false);
-    sessionStorage.removeItem("searchDancers");
-    router.push("/search");
-  };
-
   const hasAnyDancerFilled = dancers.some((name) => name.trim().length > 0);
 
   const handleKeyPress = (e: React.KeyboardEvent, index: number) => {
@@ -361,9 +344,9 @@ function SearchPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-xl p-4 md:p-8 mb-6">
+        <div className="bg-white rounded-lg shadow-xl p-3 mt-4  md:p-8 mb-6">
           {/* Breadcrumb */}
           <div className="mb-4 flex items-center justify-between">
             <Link
@@ -414,17 +397,6 @@ function SearchPageContent() {
             schedules side-by-side with color-coding!
           </p>
 
-          {hasAnyDancerFilled && (
-            <div className="flex justify-end mb-3">
-              <button
-                onClick={handleClearSearch}
-                className="text-sm text-gray-500 hover:text-gray-700 hover:underline transition-colors"
-              >
-                Clear Search
-              </button>
-            </div>
-          )}
-
           <div className="space-y-3">
             {dancers.map((dancer, index) => (
               <div key={index} className="flex gap-2 items-center relative">
@@ -452,8 +424,35 @@ function SearchPageContent() {
                         ? "Enter dancer's name..."
                         : `Dancer ${index + 1}'s name...`
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
+                    className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
                   />
+                  {/* Clear button inside input */}
+                  {dancer.trim().length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newDancers = [...dancers];
+                        newDancers[index] = "";
+                        setDancers(newDancers);
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      aria-label="Clear input"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  )}
                   {/* Custom Autocomplete Dropdown */}
                   {showSuggestions === index &&
                     filteredSuggestions.length > 0 && (
@@ -490,7 +489,7 @@ function SearchPageContent() {
               {dancers.length < 5 && (
                 <button
                   onClick={addDancerField}
-                  className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 font-medium text-xs md:text-base py-2 px-4 md:py-3 md:px-6 rounded-lg transition duration-200 whitespace-nowrap"
+                  className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 font-medium text-xs md:text-base py-2 px-4 md:py-3 md:px-6 rounded-lg transition duration-200 whitespace-nowrap cursor-pointer"
                 >
                   + Add Another Dancer
                 </button>
@@ -498,7 +497,7 @@ function SearchPageContent() {
               <button
                 onClick={handleSearch}
                 disabled={!isSearchValid()}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm md:text-base py-2 px-4 md:py-3 md:px-8 rounded-lg transition duration-200 ml-auto whitespace-nowrap disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm md:text-base py-2 px-4 md:py-3 md:px-8 rounded-lg transition duration-200 ml-auto whitespace-nowrap cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 View Schedule
               </button>
@@ -552,50 +551,7 @@ function SearchPageContent() {
               </div>
 
               {/* Copy Link Button */}
-              <button
-                onClick={handleCopyLink}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                  copied
-                    ? "bg-green-500 text-white"
-                    : "bg-purple-600 text-white hover:bg-purple-700"
-                }`}
-              >
-                {copied ? (
-                  <>
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                      />
-                    </svg>
-                    Copy Link
-                  </>
-                )}
-              </button>
+              <CopyLinkButton />
             </div>
 
             {filteredResults.length === 0 ? (
@@ -704,7 +660,7 @@ function SearchPageContent() {
                               >
                                 <div className="flex items-center justify-between w-full md:flex-1 gap-2">
                                   <h3 className="text-base md:text-lg font-bold text-left">
-                                    <span className="opacity-75 mr-2">
+                                    <span className="opacity-75 mr-1">
                                       #{entry.routineNumber}
                                     </span>
                                     {entry.routineName || "Untitled Routine"}
@@ -890,17 +846,7 @@ function SearchPageContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-              <div className="text-gray-600">Loading...</div>
-            </div>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingState />}>
       <SearchPageContent />
     </Suspense>
   );

@@ -1,9 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Papa from "papaparse";
 import React, { Suspense, useEffect, useState } from "react";
+import AwardSeparator from "../components/AwardSeparator";
+import CompareAccordion from "../components/CompareAccordion";
+import CopyLinkButton from "../components/CopyLinkButton";
+import DancerLegend from "../components/DancerLegend";
+import DayTabs from "../components/DayTabs";
+import ErrorState from "../components/ErrorState";
+import LoadingState from "../components/LoadingState";
+import PageHeader from "../components/PageHeader";
 import { useAwards } from "../hooks/useAwards";
 import { DanceEntry } from "../types/dance";
 
@@ -17,7 +24,6 @@ function ComparePageContent() {
   const [error, setError] = useState<string | null>(null);
   const [activeDay, setActiveDay] = useState<string>("All");
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
   const { findNextAward, isAwardBetween, parseTime } = useAwards();
 
   // Color palette for different dancers
@@ -191,95 +197,32 @@ function ComparePageContent() {
     };
   };
 
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
+  if (loading) return <LoadingState message="Loading schedule..." />;
+  if (error) return <ErrorState message={error} />;
+
+  // Generate dynamic title
+  const getPageTitle = () => {
+    if (dancers.length === 2) {
+      return `${dancers[0]} & ${dancers[1]}'s Schedule`;
+    } else if (dancers.length > 2) {
+      return `${dancers.slice(0, -1).join(", ")} & ${dancers[dancers.length - 1]}'s Schedule`;
     }
+    return "Combined Schedule";
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-            <div className="text-gray-600">Loading schedule...</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-xl p-8">
-            <div className="text-red-600">{error}</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 md:p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header Card */}
-        <div className="bg-white rounded-lg shadow-xl p-4 md:p-8 mb-6">
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <Link
-              href="/search"
-              className="text-xs md:text-sm text-cyan-600 hover:text-cyan-800 hover:underline flex items-center gap-1"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back to Search
-            </Link>
-            <Link
-              href="/schedule"
-              className="text-xs md:text-sm text-cyan-600 hover:text-cyan-800 hover:underline flex items-center gap-1"
-            >
-              Browse Full Schedule
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </Link>
-          </div>
-
-          <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-3">
-            {dancers.length === 2
-              ? `${dancers[0]} & ${dancers[1]}'s Schedule`
-              : dancers.length > 2
-                ? `${dancers.slice(0, -1).join(", ")} & ${dancers[dancers.length - 1]}'s Schedule`
-                : "Combined Schedule"}
-          </h1>
-
-          {/* Buttons Row - Copy Link on mobile, positioned differently on desktop */}
+        <PageHeader
+          title={getPageTitle()}
+          leftLink={{ href: "/search", label: "Back to Search", icon: "back" }}
+          rightLink={{
+            href: "/schedule",
+            label: "Browse Full Schedule",
+            icon: "forward",
+          }}
+        >
+          {/* Buttons Row - Copy Link */}
           <div className="flex items-center gap-2">
             <a
               href="https://starzdancecomp.com/TopShot/livestream/"
@@ -292,102 +235,31 @@ function ComparePageContent() {
               </svg>
               Watch Live Stream
             </a>
-            <button
-              onClick={handleCopyLink}
-              className={`flex items-center gap-1 px-2 py-2 md:absolute md:top-4 md:right-8 rounded text-xs font-medium transition-all whitespace-nowrap ${
-                copied
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
-              }`}
-            >
-              {copied ? (
-                <>
-                  <svg
-                    className="w-3 h-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Copied
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-3 h-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                  Copy Link
-                </>
-              )}
-            </button>
+            <CopyLinkButton
+              variant="compact"
+              className="md:absolute md:top-4 md:right-8"
+            />
           </div>
-        </div>
+        </PageHeader>
 
         {/* Schedule */}
         <div className="bg-white rounded-lg shadow-xl px-2 py-4 md:p-8">
-          {/* Dancer Legend - Show above tabs */}
-          <div className="flex flex-wrap gap-2 mb-4 px-2">
-            {dancers.map((name, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
-              >
-                <div
-                  className={`w-3 h-3 rounded-full ${dancerColors[index % dancerColors.length].bg}`}
-                ></div>
-                <span className="text-sm font-semibold text-gray-700">
-                  {name}
-                </span>
-              </div>
-            ))}
-          </div>
+          {/* Dancer Legend */}
+          <DancerLegend dancers={dancers} dancerColors={dancerColors} />
 
           {/* Day Tabs */}
-          <div className="flex border-b border-gray-300 mb-6 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
-            <button
-              onClick={() => setActiveDay("All")}
-              className={`px-3 md:px-6 py-3 text-sm md:text-base font-semibold transition-all whitespace-nowrap ${
-                activeDay === "All"
-                  ? "bg-purple-600 text-white rounded-t-lg border-b-2 border-purple-600 -mb-[1px]"
-                  : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
-              }`}
-            >
-              All ({filteredResults.length})
-            </button>
-            {days.map((day) => {
-              const count = resultsByDay[day]?.length || 0;
-              if (count === 0) return null;
-              return (
-                <button
-                  key={day}
-                  onClick={() => setActiveDay(day)}
-                  className={`px-3 md:px-6 py-3 text-sm md:text-base font-semibold transition-all whitespace-nowrap ${
-                    activeDay === day
-                      ? "bg-purple-600 text-white rounded-t-lg border-b-2 border-purple-600 -mb-[1px]"
-                      : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
-                  }`}
-                >
-                  {day} ({count})
-                </button>
-              );
-            })}
-          </div>
+          <DayTabs
+            days={["All", ...days]}
+            activeDay={activeDay}
+            onDayChange={setActiveDay}
+            counts={Object.fromEntries(
+              Object.entries(resultsByDay).map(([day, entries]) => [
+                day,
+                entries.length,
+              ]),
+            )}
+            totalCount={filteredResults.length}
+          />
 
           {/* Dance List */}
           <div className="space-y-3">
@@ -429,170 +301,31 @@ function ComparePageContent() {
 
                   return (
                     <React.Fragment key={index}>
-                      <div className="border-2 border-gray-300 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200">
-                        <button
-                          onClick={() =>
-                            setExpandedIndex(isExpanded ? null : index)
-                          }
-                          className={`w-full text-white px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 transition-colors ${
-                            color.isGradient ? "" : `${color.bg} ${color.hover}`
-                          }`}
-                          style={
-                            color.isGradient
-                              ? { background: color.bgColor }
-                              : {}
-                          }
-                        >
-                          <div className="flex items-center justify-between w-full md:flex-1 gap-2">
-                            <h3 className="text-base md:text-lg font-bold text-left">
-                              <span className="opacity-75 mr-2">
-                                #{entry.routineNumber}
-                              </span>
-                              {entry.routineName || "Untitled Routine"}
-                            </h3>
-                            <svg
-                              className={`w-5 h-5 md:hidden transition-transform duration-200 ${
-                                isExpanded ? "rotate-180" : ""
-                              }`}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </svg>
-                          </div>
-                          <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 w-full md:w-auto">
-                            {activeDay === "All" && (
-                              <span className="text-xs md:text-sm font-semibold">
-                                {entry.day}
-                              </span>
-                            )}
-                            <span className="text-xs md:text-sm font-semibold">
-                              {entry.time}
-                            </span>
-                            <span className="text-xs md:text-sm font-semibold">
-                              {entry.room}
-                            </span>
-                            <svg
-                              className={`w-5 h-5 hidden md:block transition-transform duration-200 ${
-                                isExpanded ? "rotate-180" : ""
-                              }`}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </svg>
-                          </div>
-                        </button>
-
-                        {isExpanded && (
-                          <div className="p-4 md:p-6 bg-white">
-                            <div className="flex flex-nowrap gap-2 md:gap-4 items-center overflow-x-auto">
-                              {entry.category && (
-                                <div className="text-center flex-shrink-0">
-                                  <div className="text-[10px] md:text-xs text-gray-500 mb-1">
-                                    Category
-                                  </div>
-                                  <div className="text-xs md:text-base font-semibold text-gray-900">
-                                    {entry.category}
-                                  </div>
-                                </div>
-                              )}
-                              {entry.ageGroup && (
-                                <div className="text-center flex-shrink-0">
-                                  <div className="text-[10px] md:text-xs text-gray-500 mb-1">
-                                    Age Group
-                                  </div>
-                                  <div className="text-xs md:text-base font-semibold text-gray-900">
-                                    {entry.ageGroup}
-                                  </div>
-                                </div>
-                              )}
-                              {entry.level && (
-                                <div className="text-center flex-shrink-0">
-                                  <div className="text-[10px] md:text-xs text-gray-500 mb-1">
-                                    Level
-                                  </div>
-                                  <div className="text-xs md:text-base font-semibold text-gray-900">
-                                    {entry.level}
-                                  </div>
-                                </div>
-                              )}
-                              {nextAward && (
-                                <div className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 bg-amber-50 border border-amber-300 md:border-2 rounded-lg ml-auto flex-shrink-0">
-                                  <div>
-                                    <div className="text-[10px] md:text-xs text-amber-700">
-                                      Awards
-                                    </div>
-                                    <div className="text-xs md:text-sm font-bold text-amber-900 whitespace-nowrap">
-                                      {nextAward.time}
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Dancer Names */}
-                            {matchingDancers.length > 0 && (
-                              <div className="mt-2 pt-2 border-t border-gray-200">
-                                <div className="flex flex-wrap gap-1.5">
-                                  {matchingDancers.map((dancer) => (
-                                    <div
-                                      key={dancer.index}
-                                      className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 rounded-full"
-                                    >
-                                      <div
-                                        className={`w-2 h-2 rounded-full ${dancerColors[dancer.index % dancerColors.length].bg}`}
-                                      ></div>
-                                      <span className="text-xs font-semibold text-gray-700">
-                                        {dancer.name}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      <CompareAccordion
+                        entry={entry}
+                        isExpanded={isExpanded}
+                        onToggle={() =>
+                          setExpandedIndex(isExpanded ? null : index)
+                        }
+                        showDay={activeDay === "All"}
+                        nextAward={nextAward}
+                        color={color}
+                        matchingDancers={matchingDancers}
+                        dancerColors={dancerColors}
+                      />
 
                       {awardBetween && (
-                        <div className="flex items-center gap-3 py-3">
-                          <div className="flex-1 h-px bg-gray-400"></div>
-                          <div className="flex items-center gap-2 px-4 py-2 bg-amber-100 border-2 border-amber-400 rounded-lg">
-                            <span className="text-xl">🏆</span>
-                            <span className="text-sm font-bold text-amber-900">
-                              Awards at {awardBetween.time} in{" "}
-                              {awardBetween.room}
-                            </span>
-                          </div>
-                          <div className="flex-1 h-px bg-gray-400"></div>
-                        </div>
+                        <AwardSeparator
+                          time={awardBetween.time}
+                          room={awardBetween.room}
+                        />
                       )}
 
                       {awardAfterLast && !awardBetween && (
-                        <div className="flex items-center gap-3 py-3">
-                          <div className="flex-1 h-px bg-gray-400"></div>
-                          <div className="flex items-center gap-2 px-4 py-2 bg-amber-100 border-2 border-amber-400 rounded-lg">
-                            <span className="text-xl">🏆</span>
-                            <span className="text-sm font-bold text-amber-900">
-                              Awards at {awardAfterLast.time} in{" "}
-                              {awardAfterLast.room}
-                            </span>
-                          </div>
-                          <div className="flex-1 h-px bg-gray-400"></div>
-                        </div>
+                        <AwardSeparator
+                          time={awardAfterLast.time}
+                          room={awardAfterLast.room}
+                        />
                       )}
                     </React.Fragment>
                   );
@@ -609,17 +342,7 @@ function ComparePageContent() {
 
 export default function ComparePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-              <div className="text-gray-600">Loading...</div>
-            </div>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingState />}>
       <ComparePageContent />
     </Suspense>
   );
