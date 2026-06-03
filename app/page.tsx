@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 flex items-start justify-center md:pt-8">
-      <div className="max-w-2xl w-full bg-white rounded-lg shadow-2xl p-6 md:p-12 text-center">
+      <div className="max-w-2xl w-full bg-white md:rounded-lg shadow-2xl p-6 md:p-12 text-center">
         <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-4">
           When Does My Kid Dance?
         </h1>

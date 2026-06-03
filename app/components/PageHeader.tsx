@@ -62,7 +62,7 @@ export default function PageHeader({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-xl p-3 pt-5 md:p-8 mb-6">
+    <div className="bg-white md:rounded-lg shadow-xl p-3 pt-5 md:p-8 mb-6">
       {/* Breadcrumb Navigation */}
       {(leftLink || rightLink) && (
         <>

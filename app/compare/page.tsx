@@ -243,7 +243,7 @@ function ComparePageContent() {
         </PageHeader>
 
         {/* Schedule */}
-        <div className="bg-white rounded-lg shadow-xl px-2 py-4 md:p-8">
+        <div className="bg-white md:rounded-lg shadow-xl px-2 py-4 md:p-8">
           {/* Dancer Legend */}
           <DancerLegend dancers={dancers} dancerColors={dancerColors} />
 
