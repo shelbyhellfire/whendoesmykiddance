@@ -223,7 +223,7 @@ function ComparePageContent() {
           }}
         >
           {/* Buttons Row - Copy Link */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-6">
             <a
               href="https://starzdancecomp.com/TopShot/livestream/"
               target="_blank"
@@ -240,10 +240,6 @@ function ComparePageContent() {
               className="md:absolute md:top-4 md:right-8"
             />
           </div>
-        </PageHeader>
-
-        {/* Schedule */}
-        <div className="bg-white md:rounded-lg shadow-xl px-2 py-4 md:p-8">
           {/* Dancer Legend */}
           <DancerLegend dancers={dancers} dancerColors={dancerColors} />
 
@@ -334,7 +330,7 @@ function ComparePageContent() {
               <p className="text-gray-600">No dances found.</p>
             )}
           </div>
-        </div>
+        </PageHeader>
       </div>
     </div>
   );

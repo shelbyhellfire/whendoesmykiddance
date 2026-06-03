@@ -167,9 +167,6 @@ export default function DancerScheduleClient({
             totalCount={filteredResults.length}
           />
 
-          {/* Divider */}
-          <div className="my-6 border-t border-gray-200"></div>
-
           {/* Dance List */}
           <div className="space-y-3">
             {displayEntries.length > 0 ? (

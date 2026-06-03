@@ -347,7 +347,7 @@ function SearchPageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white md:rounded-lg shadow-xl p-3 pt-5 md:p-8 mb-6">
+        <div className="bg-white md:rounded-lg shadow-xl px-3 py-5 md:p-8 mb-6">
           {/* Breadcrumb */}
           <div className="flex items-center justify-between">
             <Breadcrumb href="/" label="Home" icon="back" />
