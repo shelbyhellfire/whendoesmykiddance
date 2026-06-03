@@ -228,7 +228,7 @@ function ComparePageContent() {
               href="https://starzdancecomp.com/TopShot/livestream/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md"
+              className="inline-flex items-center gap-2 px-3 py-2 border-2 border-red-600 text-red-600 hover:bg-red-50 text-sm font-semibold rounded-lg transition-colors"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />

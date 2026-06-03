@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Papa from "papaparse";
 import React, { Suspense, useEffect, useState } from "react";
 import AwardSeparator from "../components/AwardSeparator";
+import Breadcrumb from "../components/Breadcrumb";
 import CompareAccordion from "../components/CompareAccordion";
 import CopyLinkButton from "../components/CopyLinkButton";
 import DayTabs from "../components/DayTabs";
@@ -346,48 +347,17 @@ function SearchPageContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-xl p-3 mt-4  md:p-8 mb-6">
+        <div className="bg-white rounded-lg shadow-xl p-3 pt-5 md:p-8 mb-6">
           {/* Breadcrumb */}
-          <div className="mb-4 flex items-center justify-between">
-            <Link
-              href="/"
-              className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Home
-            </Link>
-            <Link
+          <div className="flex items-center justify-between">
+            <Breadcrumb href="/" label="Home" icon="back" />
+            <Breadcrumb
               href="/schedule"
-              className="text-sm text-purple-600 hover:text-purple-800 hover:underline flex items-center gap-1"
-            >
-              Browse Full Schedule
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </Link>
+              label="Browse Full Schedule"
+              icon="forward"
+            />
           </div>
+          <div className="mt-4 mb-6 border-t border-gray-200"></div>
 
           <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2">
             Search for Dancers
