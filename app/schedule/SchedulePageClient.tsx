@@ -9,26 +9,15 @@ import DanceAccordion from "../components/DanceAccordion";
 import DayTabs from "../components/DayTabs";
 import ErrorState from "../components/ErrorState";
 import FilterControls from "../components/FilterControls";
-import GrandNationalCard from "../components/GrandNationalCard";
 import LoadingState from "../components/LoadingState";
 import PageHeader from "../components/PageHeader";
 import { useAwards } from "../hooks/useAwards";
 import { DanceEntry } from "../types/dance";
 
-interface GrandNational {
-  room: string;
-  day: string;
-  time: string;
-  description: string;
-  level: string;
-  type: string;
-}
-
 export default function SchedulePageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [danceData, setDanceData] = useState<DanceEntry[]>([]);
-  const [grandNationals, setGrandNationals] = useState<GrandNational[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedIndex, setExpandedIndex] = useState<string | null>(null);
@@ -149,117 +138,6 @@ export default function SchedulePageClient() {
         setLoading(false);
         console.error("Fetch error:", err);
       });
-
-    // Load Grand Nationals from awards.csv
-    fetch("/awards.csv")
-      .then((response) => response.text())
-      .then((csvText) => {
-        Papa.parse(csvText, {
-          header: false,
-          skipEmptyLines: true,
-          complete: (results) => {
-            const entries = results.data as unknown[];
-            console.log("Total CSV rows:", entries.length);
-            // Filter for Grand National entries
-            const gns = entries
-              .filter((row: unknown) => {
-                // Check both first column and other columns for Grand National text
-                const rowString = JSON.stringify(row);
-                return rowString.includes("Grand National");
-              })
-              .map((row: unknown) => {
-                const rowArray = row as string[];
-                console.log("Raw Grand National row:", rowArray);
-
-                // Handle two formats:
-                // Format 1: Quoted string in first column with newlines
-                // Format 2: Comma-separated values across columns
-
-                let room = "";
-                let day = "";
-                let time = "";
-                let description = "";
-
-                if (rowArray[0] && rowArray[0].includes("Grand National")) {
-                  // Format 1: All data in first column
-                  const fullText = String(rowArray[0] || "")
-                    .replace(/\n/g, " ")
-                    .replace(/\s+/g, " ");
-                  console.log("Format 1 - fullText:", fullText);
-
-                  const parts = fullText.split(/\s+/);
-                  room = parts[0].trim();
-                  day = parts[1].trim();
-                  const timeMatch = fullText.match(/\d{1,2}:\d{2}\s*[AP]M/);
-                  time = timeMatch ? timeMatch[0] : "";
-                  const descMatch = fullText.match(/--(.+?)--/);
-                  description = descMatch
-                    ? descMatch[1].trim()
-                    : "Grand National";
-                } else {
-                  // Format 2: Data spread across columns
-                  room = (rowArray[0] || "").trim();
-                  day = (rowArray[4] || "").trim(); // Day is in column 5 (index 4)
-                  time = (rowArray[8] || "").trim(); // Time is in column 9 (index 8)
-
-                  // Find which column has the description
-                  for (let i = 0; i < rowArray.length; i++) {
-                    if (
-                      rowArray[i] &&
-                      String(rowArray[i]).includes("Grand National")
-                    ) {
-                      const descMatch = String(rowArray[i]).match(/--(.+?)--/);
-                      description = descMatch
-                        ? descMatch[1].trim()
-                        : String(rowArray[i]);
-                      break;
-                    }
-                  }
-                }
-
-                console.log("Parsed:", { room, day, time, description });
-
-                // Extract level and type from description
-                let level = "";
-                let type = "";
-
-                if (description.includes("Rising Starz")) {
-                  level = "Rising Starz";
-                } else if (description.includes("Starz Level")) {
-                  level = "Starz Level";
-                } else if (description.includes("Starz")) {
-                  level = "Starz";
-                }
-
-                if (description.includes("Solo & D/T")) {
-                  type = "Solo & D/T";
-                } else if (description.includes("Groups")) {
-                  type = "Groups";
-                } else if (description.includes("Productions")) {
-                  type = "Productions";
-                } else if (description.includes("Standout Dancer")) {
-                  type = "Standout Dancer";
-                } else if (description.includes("Final Awards")) {
-                  type = "Final Awards";
-                } else if (description.includes("Awards")) {
-                  type = "Awards";
-                }
-
-                const result = { room, day, time, description, level, type };
-                console.log("Parsed Grand National:", result);
-                return result;
-              });
-            console.log("Grand Nationals loaded:", gns);
-            setGrandNationals(gns);
-          },
-          error: (err: unknown) => {
-            console.error("Error loading Grand Nationals:", err);
-          },
-        });
-      })
-      .catch((err) => {
-        console.error("Error loading awards file:", err);
-      });
   }, []);
 
   // Filter data based on selected filters
@@ -300,28 +178,6 @@ export default function SchedulePageClient() {
     }
     return acc;
   }, [] as DanceEntry[]);
-
-  // Filter Grand Nationals based on selected filters
-  const filteredGrandNationals = grandNationals.filter((gn) => {
-    const matchesDay =
-      selectedDay === "All" ||
-      gn.day === selectedDay ||
-      (selectedDay === "Sunday" && gn.day === "Sun") ||
-      (selectedDay === "Saturday" && gn.day === "Sat") ||
-      (selectedDay === "Friday" && gn.day === "Fri") ||
-      (selectedDay === "Thursday" && gn.day === "Thu") ||
-      (selectedDay === "Wednesday" && gn.day === "Wed") ||
-      (selectedDay === "Tuesday" && gn.day === "Tue");
-    const matchesRoom = selectedRoom === "All" || gn.room === selectedRoom;
-    console.log(
-      `Filtering GN: room='${gn.room}' day='${gn.day}' | selectedRoom='${selectedRoom}' selectedDay='${selectedDay}' | matchesRoom=${matchesRoom} matchesDay=${matchesDay}`,
-    );
-    return matchesDay && matchesRoom;
-  });
-
-  console.log(
-    `Total GN: ${grandNationals.length}, Filtered GN: ${filteredGrandNationals.length}, Regular dances: ${uniqueFilteredData.length}`,
-  );
 
   // Update URL when filters change
   const updateURL = (day: string, room: string, age: string) => {
@@ -387,7 +243,7 @@ export default function SchedulePageClient() {
     }
     metaDescription.setAttribute(
       "content",
-      `View ${uniqueFilteredData.length + filteredGrandNationals.length} dance routines${hasActiveFilters ? ` - ${title}` : " from the competition schedule"}`,
+      `View ${uniqueFilteredData.length} dance routines${hasActiveFilters ? ` - ${title}` : " from the competition schedule"}`,
     );
 
     // Update OG tags
@@ -409,14 +265,13 @@ export default function SchedulePageClient() {
     }
     ogDescription.setAttribute(
       "content",
-      `View ${uniqueFilteredData.length + filteredGrandNationals.length} dance routines${hasActiveFilters ? ` - ${title}` : " from the competition schedule"}`,
+      `View ${uniqueFilteredData.length} dance routines${hasActiveFilters ? ` - ${title}` : " from the competition schedule"}`,
     );
   }, [
     selectedDay,
     selectedRoom,
     selectedAgeGroup,
     uniqueFilteredData.length,
-    filteredGrandNationals.length,
     hasActiveFilters,
   ]);
 
@@ -461,7 +316,7 @@ export default function SchedulePageClient() {
 
           {/* Dance Schedule List */}
           <div className="space-y-3">
-            {uniqueFilteredData.length > 0 || filteredGrandNationals.length > 0
+            {uniqueFilteredData.length > 0
               ? uniqueFilteredData
                   .sort((a, b) => {
                     // Sort by day first, then by time
@@ -545,23 +400,11 @@ export default function SchedulePageClient() {
                   })
               : null}
 
-            {/* Grand Nationals */}
-            {filteredGrandNationals.map((gn, index) => (
-              <GrandNationalCard
-                key={`gn-${index}`}
-                description={gn.description}
-                day={gn.day}
-                time={gn.time}
-                room={gn.room}
-              />
-            ))}
-
-            {uniqueFilteredData.length === 0 &&
-              filteredGrandNationals.length === 0 && (
-                <p className="text-gray-600 text-center py-8">
-                  No dances match the selected filters.
-                </p>
-              )}
+            {uniqueFilteredData.length === 0 && (
+              <p className="text-gray-600 text-center py-8">
+                No dances match the selected filters.
+              </p>
+            )}
           </div>
         </PageHeader>
       </div>
