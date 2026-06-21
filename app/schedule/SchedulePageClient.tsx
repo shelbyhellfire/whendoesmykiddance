@@ -55,6 +55,20 @@ export default function SchedulePageClient() {
     "Sunday",
     "Monday",
   ];
+
+  // Helper function to normalize day names
+  const normalizeDayName = (day: string): string => {
+    const dayMap: { [key: string]: string } = {
+      Sun: "Sunday",
+      Mon: "Monday",
+      Tue: "Tuesday",
+      Wed: "Wednesday",
+      Thu: "Thursday",
+      Fri: "Friday",
+      Sat: "Saturday",
+    };
+    return dayMap[day] || day;
+  };
   const uniqueDays = Array.from(
     new Set(danceData.map((d) => d.day).filter(Boolean)),
   );
@@ -85,18 +99,43 @@ export default function SchedulePageClient() {
   ];
 
   useEffect(() => {
-    // Load CSV from public folder
-    fetch("/schedule.csv")
-      .then((response) => response.text())
-      .then((csvText) => {
-        Papa.parse(csvText, {
+    // Load both schedule.csv and grand-nationals-schedule.csv
+    Promise.all([
+      fetch("/schedule.csv").then((response) => response.text()),
+      fetch("/grand-nationals-schedule.csv").then((response) =>
+        response.text(),
+      ),
+    ])
+      .then(([scheduleText, grandNationalsText]) => {
+        // Parse main schedule
+        Papa.parse(scheduleText, {
           header: true,
           skipEmptyLines: true,
-          complete: (results) => {
-            const entries = results.data as DanceEntry[];
-            console.log("Loaded entries:", entries.length);
-            setDanceData(entries);
-            setLoading(false);
+          complete: (scheduleResults) => {
+            const scheduleEntries = scheduleResults.data as DanceEntry[];
+            console.log("Loaded schedule entries:", scheduleEntries.length);
+
+            // Parse grand nationals schedule
+            Papa.parse(grandNationalsText, {
+              header: true,
+              skipEmptyLines: true,
+              complete: (gnResults) => {
+                const gnEntries = gnResults.data as DanceEntry[];
+                console.log("Loaded Grand National entries:", gnEntries.length);
+
+                // Combine both datasets
+                const allEntries = [...scheduleEntries, ...gnEntries];
+                console.log("Total combined entries:", allEntries.length);
+                setDanceData(allEntries);
+                setLoading(false);
+              },
+              error: (err: unknown) => {
+                console.error("Error parsing Grand Nationals CSV:", err);
+                // Still use schedule data even if GN fails
+                setDanceData(scheduleEntries);
+                setLoading(false);
+              },
+            });
           },
           error: (err: unknown) => {
             setError("Error loading schedule data");
@@ -106,7 +145,7 @@ export default function SchedulePageClient() {
         });
       })
       .catch((err) => {
-        setError("Error loading schedule file");
+        setError("Error loading schedule files");
         setLoading(false);
         console.error("Fetch error:", err);
       });
@@ -225,7 +264,16 @@ export default function SchedulePageClient() {
 
   // Filter data based on selected filters
   const filteredData = danceData.filter((entry) => {
-    const matchesDay = selectedDay === "All" || entry.day === selectedDay;
+    const matchesDay =
+      selectedDay === "All" ||
+      entry.day === selectedDay ||
+      (selectedDay === "Sunday" && entry.day === "Sun") ||
+      (selectedDay === "Saturday" && entry.day === "Sat") ||
+      (selectedDay === "Friday" && entry.day === "Fri") ||
+      (selectedDay === "Thursday" && entry.day === "Thu") ||
+      (selectedDay === "Wednesday" && entry.day === "Wed") ||
+      (selectedDay === "Tuesday" && entry.day === "Tue") ||
+      (selectedDay === "Monday" && entry.day === "Mon");
     const matchesRoom = selectedRoom === "All" || entry.room === selectedRoom;
     const matchesAgeGroup =
       selectedAgeGroup === "All" || entry.ageGroup === selectedAgeGroup;
@@ -417,8 +465,8 @@ export default function SchedulePageClient() {
               ? uniqueFilteredData
                   .sort((a, b) => {
                     // Sort by day first, then by time
-                    const dayIndexA = dayOrder.indexOf(a.day);
-                    const dayIndexB = dayOrder.indexOf(b.day);
+                    const dayIndexA = dayOrder.indexOf(normalizeDayName(a.day));
+                    const dayIndexB = dayOrder.indexOf(normalizeDayName(b.day));
                     if (dayIndexA !== dayIndexB) {
                       return dayIndexA - dayIndexB;
                     }
