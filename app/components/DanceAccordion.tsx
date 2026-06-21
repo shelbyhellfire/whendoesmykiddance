@@ -36,7 +36,9 @@ export default function DanceAccordion({
       <button
         onClick={onToggle}
         className={`w-full text-white px-2 py-3 md:px-6 md:py-4 flex flex-wrap items-center gap-2 md:gap-3 transition-colors relative ${
-          color && !color.isGradient ? `${color.bg} ${color.hover}` : "bg-cyan-600 hover:bg-cyan-700"
+          color && !color.isGradient
+            ? `${color.bg} ${color.hover}`
+            : "bg-cyan-600 hover:bg-cyan-700"
         }`}
         style={color?.isGradient ? { background: color.bgColor } : {}}
       >
@@ -118,16 +120,6 @@ export default function DanceAccordion({
                 </div>
                 <div className="text-xs md:text-base font-semibold text-gray-900">
                   {entry.level}
-                </div>
-              </div>
-            )}
-            {entry.studio && (
-              <div className="text-center flex-shrink-0">
-                <div className="text-[10px] md:text-xs text-gray-500 mb-1">
-                  Studio
-                </div>
-                <div className="text-xs md:text-base font-semibold text-gray-900">
-                  {entry.studio}
                 </div>
               </div>
             )}
